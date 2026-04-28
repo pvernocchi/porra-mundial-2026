@@ -86,7 +86,13 @@ async function _doWebauthnLogin() {
 document.getElementById('webauthn-btn')?.addEventListener('click', _doWebauthnLogin);
 <?php if (!$hasTotp): ?>
 // Auto-trigger WebAuthn when it's the only MFA method available.
-if (window.PublicKeyCredential) { setTimeout(_doWebauthnLogin, 300); }
+if (window.PublicKeyCredential) {
+  setTimeout(_doWebauthnLogin, 300);
+} else {
+  document.getElementById('webauthn-status').textContent = 'Tu navegador no soporta WebAuthn. Usa un navegador moderno (Chrome, Edge, Firefox, Safari).';
+  document.getElementById('webauthn-status').style.display = '';
+  document.getElementById('webauthn-btn').disabled = true;
+}
 <?php endif ?>
 function _b64url2buf(b64) {
   const s = b64.replace(/-/g, '+').replace(/_/g, '/');

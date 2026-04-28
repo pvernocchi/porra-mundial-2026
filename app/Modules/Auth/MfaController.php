@@ -465,7 +465,7 @@ final class MfaController
             $credModel = new MfaCredential($this->app->db());
             $credModel->createWebauthn(
                 $uid,
-                $label !== '' ? $label : 'Security key',
+                $label !== '' ? $label : 'Llave de seguridad',
                 $credentialId,
                 $publicKeyB64,
                 $signCount,
