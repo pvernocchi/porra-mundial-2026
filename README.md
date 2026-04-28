@@ -1,79 +1,230 @@
-# Porra Mundial 2026
+<div align="center">
 
-Aplicación web de porra para el mundial 2026, diseñada para ser **reutilizable** y desplegable en hostings compartidos (Namecheap / cPanel) con sólo subir los archivos por FTP y abrir el dominio en un navegador.
+# ⚽ Porra Mundial 2026
 
-## Características
+### 🏆 Tu porra futbolera, lista para desplegar
 
-- **Sin CLI**: instalación y actualizaciones desde el navegador, estilo WordPress.
-- **PHP 8.1+ / MySQL** (también soporta MariaDB y SQLite para tests).
-- Núcleo propio ligero (sin Laravel/Symfony) para encajar en hostings modestos.
-- Módulo de **Administración**:
-  - Gestión de usuarios sólo por **invitación** (enlace válido 48 h, reenviable).
-  - Roles `user` / `admin`, alta/baja/edición y reset de contraseña.
-  - **MFA** con TOTP, llaves FIDO2/Yubikey y Windows Hello (WebAuthn) — múltiples credenciales por usuario.
-  - Códigos de recuperación de un solo uso.
-- **Comunicaciones**: configuración SMTP con cifrado, reply-to, email de prueba, plantillas.
-- **Seguridad**:
-  - Captcha (Google reCAPTCHA v2/v3, Cloudflare Turnstile).
-  - Política MFA configurable (opcional / admins / todos).
-  - Bloqueo de cuenta tras N intentos.
-  - Auditoría de eventos sensibles.
-- Cookies seguras, CSRF en todos los formularios, hashing con `password_hash`.
+[![PHP](https://img.shields.io/badge/PHP-8.1+-777BB4?style=for-the-badge&logo=php&logoColor=white)](https://php.net)
+[![MySQL](https://img.shields.io/badge/MySQL-5.7+-4479A1?style=for-the-badge&logo=mysql&logoColor=white)](https://www.mysql.com)
+[![License](https://img.shields.io/badge/Licencia-MIT-green?style=for-the-badge)](LICENSE)
+[![Version](https://img.shields.io/badge/Versión-0.1.0-blue?style=for-the-badge)]()
 
-## Estado del proyecto
+> Aplicación web de porra para el Mundial 2026 🌍  
+> Diseñada para hostings compartidos — sube por FTP, abre el navegador y listo.
 
-| PR | Funcionalidad | Estado |
-| -- | ------------- | ------ |
-| 1 | Esqueleto (router, autoload, config, sesiones, CSRF, vistas) | ✅ |
-| 2 | Asistente de instalación (preflight, BD, sitio, admin, migraciones, lock) y modo upgrade | ✅ |
-| 3 | Auth básico (login/logout, política contraseña, rate limit, audit) | ✅ |
-| 4 | Invitaciones (alta vía link 48 h, reenvío, revocación) | ✅ |
-| 5 | Comunicaciones SMTP (PHPMailer + SMTP propio + spool) | ✅ |
-| 6 | Admin · Usuarios (CRUD completo, MFA reset, soft delete, audit) | ✅ |
-| 7 | MFA TOTP (alta con QR, verificación, recovery codes) | ✅ |
-| 8 | MFA WebAuthn (esquema, UI, endpoints stub — necesita `web-auth/webauthn-lib` para activarse) | ⚠️ Stub |
-| 9 | Seguridad (captcha, política MFA, bloqueo, expiración) | ✅ |
-| 10 | Empaquetado/release y docs (`INSTALL.md`, `UPGRADE.md`, GitHub Actions) | ✅ |
+</div>
 
-> WebAuthn está estructuralmente preparado (esquema BD, UI, rutas, política HTTPS) pero el handshake completo se delega a `web-auth/webauthn-lib`. Cuando ejecutes `composer install` antes de empaquetar el release, las rutas dejarán de devolver 501.
+---
 
-## Despliegue rápido
+## 📋 Tabla de contenidos
 
-Ver [`INSTALL.md`](INSTALL.md) para una guía paso a paso (incluye Namecheap).
+- [✨ Características](#-características)
+- [🏗️ Arquitectura](#️-arquitectura)
+- [⚙️ Requisitos](#️-requisitos)
+- [🚀 Despliegue rápido](#-despliegue-rápido)
+- [☁️ Despliegue con GitHub Actions](#️-despliegue-con-github-actions)
+- [📦 Estado del proyecto](#-estado-del-proyecto)
+- [🛠️ Desarrollo](#️-desarrollo)
+- [📄 Documentación](#-documentación)
+- [📝 Licencia](#-licencia)
 
-## Despliegue FTP manual (on-demand) con GitHub Actions
+---
 
-Se añadió el workflow `.github/workflows/deploy-ftp.yml` para subir el proyecto desde GitHub al hosting por FTP/FTPS cuando lo ejecutes manualmente.
+## ✨ Características
 
-### Secretos necesarios en GitHub
+### 🖥️ Instalación sin CLI
+Asistente desde el navegador estilo WordPress — sin terminal, sin SSH, sin Composer en el servidor.  
+Actualización automática de migraciones al subir una nueva versión.
 
-Configura estos secretos en **Settings → Secrets and variables → Actions**:
+### 👥 Gestión de usuarios por invitación
+- 🔗 Alta exclusivamente mediante **enlace de invitación** (válido 48 h, reenviable)
+- 👤 Roles `user` / `admin` con CRUD completo
+- 🗑️ Soft delete, edición y reset de contraseña
 
-- `FTP_SERVER`: host FTP/FTPS (ej. `ftp.tudominio.com`)
-- `FTP_USERNAME`: usuario FTP
-- `FTP_PASSWORD`: contraseña FTP
-- `FTP_SERVER_DIR`: ruta remota donde desplegar (ej. `/home/usuario/porra/`)
-- `FTP_PROTOCOL` (opcional): `ftps` (por defecto) o `ftp`
+### 🔐 Autenticación multifactor (MFA)
+- 📱 **TOTP** — QR + secreto manual, códigos de recuperación de un solo uso
+- 🔑 **WebAuthn** — Yubikeys, FIDO2, Windows Hello (múltiples credenciales por usuario)
+- ⚙️ Política configurable: _opcional_ · _solo admins_ · _todos los usuarios_
 
-### Cómo ejecutarlo
+### ✉️ Comunicaciones SMTP
+- Configuración de servidores SMTP con cifrado (TLS/SSL)
+- Reply-to, email de prueba, plantillas personalizables
+- Fallback a archivos `.eml` en disco cuando no hay SMTP
 
-1. Ve a **Actions** → **Deploy FTP (On-demand)**.
-2. Pulsa **Run workflow**.
-3. Opcionalmente indica `ref` (branch/tag/SHA); por defecto usa `main`.
+### 🛡️ Seguridad integral
+| Medida | Detalle |
+|--------|---------|
+| 🤖 Captcha | Google reCAPTCHA v2/v3 · Cloudflare Turnstile |
+| 🔒 CSRF | Token en todos los formularios |
+| 🔑 Hashing | `password_hash` (bcrypt) |
+| 🚫 Rate limit | Bloqueo de cuenta tras N intentos fallidos |
+| 🍪 Cookies | Secure · HttpOnly · SameSite |
+| 📋 Auditoría | Log de eventos sensibles |
 
-El workflow hace checkout del ref, instala dependencias de producción con Composer y sube archivos por FTPS (por defecto).
+---
 
-## Desarrollo
+## 🏗️ Arquitectura
+
+```
+porra-mundial-2026/
+├── 📂 app/                    # Código fuente PHP
+│   ├── Core/                  # Núcleo (Router, Session, CSRF, DB…)
+│   ├── Models/                # Modelos de datos
+│   ├── Modules/
+│   │   ├── Admin/             # Panel de administración
+│   │   ├── Auth/              # Login, logout, MFA
+│   │   ├── Game/              # Lógica de la porra
+│   │   └── Install/           # Asistente de instalación
+│   ├── bootstrap.php
+│   └── routes.php
+├── 📂 config/                 # Configuración (generada por el instalador)
+├── 📂 database/               # Migraciones SQL
+├── 📂 public/                 # Document root del servidor web
+│   ├── assets/                # CSS, JS, imágenes
+│   └── index.php              # Front controller
+├── 📂 storage/                # Logs, caché, emails, lock
+├── 📂 tests/                  # Tests PHPUnit
+├── 📂 docs/                   # Documentación (INSTALL, UPGRADE)
+└── 📄 composer.json
+```
+
+> **Framework propio ligero** — sin Laravel ni Symfony — diseñado para funcionar en hostings modestos con recursos limitados.
+
+---
+
+## ⚙️ Requisitos
+
+| Requisito | Versión mínima |
+|-----------|----------------|
+| 🐘 PHP | 8.1+ |
+| 🗄️ MySQL / MariaDB | 5.7+ / 10.3+ |
+| 🌐 Apache | `mod_rewrite` habilitado |
+
+**Extensiones PHP necesarias:**
+
+```
+pdo_mysql · openssl · mbstring · curl · sodium
+```
+
+---
+
+## 🚀 Despliegue rápido
+
+<details>
+<summary><strong>📖 Pasos de instalación (clic para expandir)</strong></summary>
+
+1. **Descarga** la última release zip desde [Releases](../../releases)
+2. **Crea la base de datos** en cPanel → MySQL® Databases
+3. **Sube los archivos** por FTP al hosting
+4. **Ajusta permisos** `775` en `config/` y `storage/`
+5. **Abre el dominio** en el navegador → el asistente te guía:
+   - ✅ Comprobaciones del sistema
+   - 🗄️ Conexión a base de datos
+   - 🌐 Configuración del sitio
+   - 👤 Creación del administrador
+   - 🚀 Ejecución de migraciones
+
+</details>
+
+> 📚 Guía completa paso a paso en [`docs/INSTALL.md`](docs/INSTALL.md)
+
+### 🔄 Actualización
+
+Sube la nueva release por FTP sobre la instalación existente.  
+Las migraciones pendientes se aplican automáticamente desde el navegador.
+
+> 📚 Detalles en [`docs/UPGRADE.md`](docs/UPGRADE.md)
+
+---
+
+## ☁️ Despliegue con GitHub Actions
+
+El workflow **Deploy FTP (On-demand)** sube el proyecto por FTP/FTPS directamente desde GitHub.
+
+### 🔑 Secretos necesarios
+
+Configura en **Settings → Secrets and variables → Actions**:
+
+| Secreto | Descripción | Ejemplo |
+|---------|-------------|---------|
+| `FTP_SERVER` | Host FTP/FTPS | `ftp.tudominio.com` |
+| `FTP_USERNAME` | Usuario FTP | `deploy@tudominio.com` |
+| `FTP_PASSWORD` | Contraseña FTP | — |
+| `FTP_SERVER_DIR` | Ruta remota | `/home/usuario/porra/` |
+| `FTP_PROTOCOL` | Protocolo _(opcional)_ | `ftps` (por defecto) |
+
+### ▶️ Ejecución
+
+1. Ve a **Actions** → **Deploy FTP (On-demand)**
+2. Pulsa **Run workflow**
+3. Indica opcionalmente un `ref` (branch / tag / SHA) — por defecto usa `main`
+
+---
+
+## 📦 Estado del proyecto
+
+| # | Funcionalidad | Estado |
+|---|---------------|--------|
+| 1 | 🧱 Esqueleto (router, autoload, config, sesiones, CSRF, vistas) | ✅ Completado |
+| 2 | 🧙 Asistente de instalación + modo upgrade | ✅ Completado |
+| 3 | 🔐 Auth básico (login/logout, rate limit, auditoría) | ✅ Completado |
+| 4 | 🔗 Invitaciones (link 48 h, reenvío, revocación) | ✅ Completado |
+| 5 | ✉️ Comunicaciones SMTP (PHPMailer + spool) | ✅ Completado |
+| 6 | 👥 Admin · Usuarios (CRUD, MFA reset, soft delete) | ✅ Completado |
+| 7 | 📱 MFA TOTP (QR, verificación, recovery codes) | ✅ Completado |
+| 8 | 🔑 MFA WebAuthn (FIDO2, Yubikey, Windows Hello) | ⚠️ Stub |
+| 9 | 🛡️ Seguridad (captcha, política MFA, bloqueo, expiración) | ✅ Completado |
+| 10 | 📦 Empaquetado, release y documentación | ✅ Completado |
+
+> **Nota sobre WebAuthn:** La infraestructura está preparada (esquema BD, UI, rutas, política HTTPS). El handshake completo se activa al instalar `web-auth/webauthn-lib` con `composer install`.
+
+---
+
+## 🛠️ Desarrollo
+
+### Clonar y preparar
 
 ```bash
-# Linter sintáctico (incluido en PHP)
-find app public -name '*.php' -print0 | xargs -0 -n1 php -l
-
-# Tests
+git clone https://github.com/pvernocchi/porra-mundial-2026.git
+cd porra-mundial-2026
 composer install
+```
+
+### Lint
+
+```bash
+find app public -name '*.php' -print0 | xargs -0 -n1 php -l
+```
+
+### Tests
+
+```bash
 vendor/bin/phpunit
 ```
 
-## Licencia
+> Los tests usan SQLite en memoria — no necesitas MySQL para ejecutarlos.
 
-MIT.
+---
+
+## 📄 Documentación
+
+| Documento | Descripción |
+|-----------|-------------|
+| 📖 [`docs/INSTALL.md`](docs/INSTALL.md) | Guía de instalación paso a paso (incluye Namecheap/cPanel) |
+| 🔄 [`docs/UPGRADE.md`](docs/UPGRADE.md) | Procedimiento de actualización y rollback |
+
+---
+
+## 📝 Licencia
+
+Este proyecto está bajo la licencia **MIT** — consulta el archivo [LICENSE](LICENSE) para más detalles.
+
+---
+
+<div align="center">
+
+**⚽ ¡Hecho con pasión futbolera! ⚽**
+
+_¿Preguntas o sugerencias? Abre un [issue](../../issues)._
+
+</div>
