@@ -39,7 +39,7 @@ Aplicación web de porra para el mundial 2026, diseñada para ser **reutilizable
 
 ## Despliegue rápido
 
-Lee [`INSTALL.md`](INSTALL.md) para una guía paso a paso (incluye Namecheap).
+Ver [`INSTALL.md`](INSTALL.md) para una guía paso a paso (incluye Namecheap).
 
 ## Despliegue automático por FTP (GitHub Actions)
 
