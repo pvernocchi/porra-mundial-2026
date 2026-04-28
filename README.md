@@ -5,7 +5,7 @@ Aplicación web de porra para el mundial 2026, diseñada para ser **reutilizable
 ## Características
 
 - **Sin CLI**: instalación y actualizaciones desde el navegador, estilo WordPress.
-- **PHP 8.1+ / MySQL** (también soporta MariaDB y SQLite para tests).
+- **PHP 8.3+ / MySQL** (también soporta MariaDB y SQLite para tests).
 - Núcleo propio ligero (sin Laravel/Symfony) para encajar en hostings modestos.
 - Módulo de **Administración**:
   - Gestión de usuarios sólo por **invitación** (enlace válido 48 h, reenviable).
