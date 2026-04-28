@@ -50,7 +50,9 @@ final class View
         if ($this->extend !== null) {
             $layout = $this->extend;
             $this->extend = null;
-            $this->sections['content'] = $body;
+            if (!isset($this->sections['content'])) {
+                $this->sections['content'] = $body;
+            }
             return $this->renderFile($layout, $this->extendData);
         }
         return $body;
