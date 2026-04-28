@@ -236,6 +236,7 @@ final class Score
         $rank = 0;
         $pos = 0;
         $prevTotal = null;
+        $found = false;
         foreach ($board as $entry) {
             $pos++;
             if ($entry['total'] !== $prevTotal) {
@@ -243,11 +244,12 @@ final class Score
                 $prevTotal = $entry['total'];
             }
             if ($entry['user_id'] === $userId) {
+                $found = true;
                 break;
             }
         }
-        if ($pos > 0 && ($board[$pos - 1]['user_id'] ?? 0) !== $userId) {
-            $rank = 0; // user not found in board
+        if (!$found) {
+            $rank = 0;
         }
 
         return [

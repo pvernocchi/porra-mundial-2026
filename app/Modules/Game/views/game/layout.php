@@ -7,7 +7,7 @@ $base  = $e($app->baseUrl());
 $title = $title ?? 'Porra Mundial 2026';
 $currentPath = $_SERVER['REQUEST_URI'] ?? '';
 $isActive = fn(string $path): string => str_contains($currentPath, $path) ? ' active' : '';
-$isHome = ($currentPath === $app->baseUrl() . '/home' || $currentPath === '/home');
+$isHome = str_contains($currentPath, '/home');
 ?>
 <!doctype html>
 <html lang="es">
