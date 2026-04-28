@@ -152,7 +152,25 @@ final class Installer
             if ($stmt === '') {
                 continue;
             }
-            $db->pdo()->exec($stmt);
+            try {
+                $db->pdo()->exec($stmt);
+            } catch (\PDOException $e) {
+                // Skip "table/view already exists" errors (MySQL SQLSTATE
+                // 42S01, SQLite "table ... already exists") and duplicate-key
+                // errors (MySQL SQLSTATE 23000, SQLite "UNIQUE constraint
+                // failed") so that forced upgrades and re-runs of migrations
+                // don't fail on pre-existing objects or seed data.
+                $code = (string)$e->getCode();
+                if ($code === '42S01'
+                    || $code === '23000'
+                    || stripos($e->getMessage(), 'already exists') !== false
+                    || stripos($e->getMessage(), 'UNIQUE constraint failed') !== false
+                    || stripos($e->getMessage(), 'Duplicate entry') !== false
+                ) {
+                    continue;
+                }
+                throw $e;
+            }
         }
     }
 
