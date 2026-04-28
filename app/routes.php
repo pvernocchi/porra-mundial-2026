@@ -13,6 +13,8 @@ use App\Modules\Auth\AuthController;
 use App\Modules\Auth\InviteController;
 use App\Modules\Auth\MfaController;
 use App\Modules\Install\InstallController;
+use App\Modules\Game\GameController;
+use App\Modules\Game\AdminGameController;
 
 /**
  * @param Application $app
@@ -120,6 +122,25 @@ return static function (Application $app): Router {
 
     $router->get('/admin/security',  fn(Request $r) => (new SecurityController($app))->index($r), [$auth, $admin]);
     $router->post('/admin/security', fn(Request $r) => (new SecurityController($app))->save($r),  [$auth, $admin]);
+
+    /* ---------- Admin: Game management (admin + account_manager) ---------- */
+    $router->get('/admin/game/matches',                                      fn(Request $r) => (new AdminGameController($app))->matches($r),                  [$auth, $userManager]);
+    $router->post('/admin/game/matches',                                     fn(Request $r) => (new AdminGameController($app))->createMatch($r),              [$auth, $userManager]);
+    $router->get('/admin/game/matches/{id}',                                 fn(Request $r, array $p) => (new AdminGameController($app))->editMatch($r, $p),  [$auth, $userManager]);
+    $router->post('/admin/game/matches/{id}',                                fn(Request $r, array $p) => (new AdminGameController($app))->updateMatch($r, $p),[$auth, $userManager]);
+    $router->post('/admin/game/matches/{id}/delete',                         fn(Request $r, array $p) => (new AdminGameController($app))->deleteMatch($r, $p),[$auth, $userManager]);
+    $router->post('/admin/game/picks-lock',                                  fn(Request $r) => (new AdminGameController($app))->togglePicksLock($r),          [$auth, $userManager]);
+    $router->get('/admin/game/progress',                                     fn(Request $r) => (new AdminGameController($app))->progress($r),                 [$auth, $userManager]);
+    $router->post('/admin/game/progress',                                    fn(Request $r) => (new AdminGameController($app))->addProgress($r),              [$auth, $userManager]);
+    $router->post('/admin/game/progress/{team_id}/{achievement}/delete',     fn(Request $r, array $p) => (new AdminGameController($app))->removeProgress($r, $p), [$auth, $userManager]);
+    $router->post('/admin/game/awards',                                      fn(Request $r) => (new AdminGameController($app))->setAward($r),                 [$auth, $userManager]);
+    $router->post('/admin/game/awards/{award}/delete',                       fn(Request $r, array $p) => (new AdminGameController($app))->removeAward($r, $p),[$auth, $userManager]);
+
+    /* ---------- Game: Player-facing (any logged-in user) ---------- */
+    $router->get('/game/picks',       fn(Request $r) => (new GameController($app))->picks($r),       [$auth]);
+    $router->post('/game/picks',      fn(Request $r) => (new GameController($app))->savePicks($r),   [$auth]);
+    $router->get('/game/leaderboard', fn(Request $r) => (new GameController($app))->leaderboard($r), [$auth]);
+    $router->get('/game/results',     fn(Request $r) => (new GameController($app))->results($r),     [$auth]);
 
     return $router;
 };

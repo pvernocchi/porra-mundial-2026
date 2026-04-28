@@ -102,6 +102,7 @@ final class Application
                 $this->path('app/Modules/Admin/views'),
                 $this->path('app/Modules/Auth/views'),
                 $this->path('app/Modules/Install/views'),
+                $this->path('app/Modules/Game/views'),
             ];
             $this->view = new View($paths, $this);
         }

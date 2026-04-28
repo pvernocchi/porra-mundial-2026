@@ -21,6 +21,8 @@ $title = $title ?? (string)$app->config()->get('site.name', 'Porra');
     <nav>
       <a href="<?= $base ?>/admin">Inicio</a>
       <a href="<?= $base ?>/admin/users">Usuarios</a>
+      <a href="<?= $base ?>/admin/game/matches">Partidos</a>
+      <a href="<?= $base ?>/admin/game/progress">Avances</a>
       <?php if ($app->auth()->isAdmin()): ?>
         <a href="<?= $base ?>/admin/communications/smtp">Comunicaciones</a>
         <a href="<?= $base ?>/admin/security">Seguridad</a>
