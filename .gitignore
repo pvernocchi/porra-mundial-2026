@@ -11,6 +11,7 @@
 /database/schema.lock
 /database/*.sqlite
 .phpunit.result.cache
+.phpunit.cache/
 .phpcs.cache
 .idea/
 .vscode/

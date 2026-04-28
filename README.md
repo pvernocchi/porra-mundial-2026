@@ -41,6 +41,27 @@ Aplicación web de porra para el mundial 2026, diseñada para ser **reutilizable
 
 Lee [`INSTALL.md`](INSTALL.md) para una guía paso a paso (incluye Namecheap).
 
+## Despliegue automático por FTP (GitHub Actions)
+
+Se añadió el workflow `.github/workflows/deploy-ftp.yml` para subir el proyecto desde GitHub al hosting por FTP.
+
+### Secretos necesarios en GitHub
+
+Configura estos secretos en **Settings → Secrets and variables → Actions**:
+
+- `FTP_SERVER`: host FTP (ej. `ftp.tudominio.com`)
+- `FTP_USERNAME`: usuario FTP
+- `FTP_PASSWORD`: contraseña FTP
+- `FTP_SERVER_DIR`: ruta remota donde desplegar (ej. `/home/usuario/porra/`)
+
+### Cómo ejecutarlo
+
+1. Ve a **Actions** → **Deploy FTP**.
+2. Pulsa **Run workflow**.
+3. Opcionalmente indica `ref` (branch/tag/SHA); por defecto usa `main`.
+
+El workflow hace checkout del ref, instala dependencias de producción con Composer y sube archivos por FTP.
+
 ## Desarrollo
 
 ```bash
