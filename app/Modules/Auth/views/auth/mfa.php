@@ -36,8 +36,55 @@ $base = $e($app->baseUrl());
 <p class="muted"><small>Requiere que el sitio se sirva sobre HTTPS.</small></p>
 <script>
 document.getElementById('webauthn-btn')?.addEventListener('click', async () => {
-  alert('WebAuthn estará disponible cuando se despliegue la versión completa con web-auth/webauthn-lib.');
+  const btn = document.getElementById('webauthn-btn');
+  btn.disabled = true;
+  btn.textContent = 'Verificando…';
+  try {
+    const optRes = await fetch('<?= $base ?>/api/webauthn/login-options', {credentials: 'same-origin'});
+    if (!optRes.ok) { const e = await optRes.json(); throw new Error(e.error || 'Error obteniendo opciones.'); }
+    const options = await optRes.json();
+    options.challenge = _b64url2buf(options.challenge);
+    if (options.allowCredentials) {
+      options.allowCredentials = options.allowCredentials.map(c => ({...c, id: _b64url2buf(c.id)}));
+    }
+    const assertion = await navigator.credentials.get({publicKey: options});
+    const body = {
+      id: _buf2b64url(assertion.rawId),
+      rawId: _buf2b64url(assertion.rawId),
+      type: assertion.type,
+      response: {
+        clientDataJSON: _buf2b64url(assertion.response.clientDataJSON),
+        authenticatorData: _buf2b64url(assertion.response.authenticatorData),
+        signature: _buf2b64url(assertion.response.signature),
+        userHandle: assertion.response.userHandle ? _buf2b64url(assertion.response.userHandle) : null,
+      },
+    };
+    const loginRes = await fetch('<?= $base ?>/api/webauthn/login', {
+      method: 'POST', credentials: 'same-origin',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(body),
+    });
+    const result = await loginRes.json();
+    if (!loginRes.ok || !result.ok) throw new Error(result.error || 'Verificación fallida.');
+    window.location.href = result.redirect || '<?= $base ?>/admin';
+  } catch (e) {
+    if (e.name === 'NotAllowedError') { alert('Operación cancelada por el usuario.'); }
+    else { alert(e.message || 'Error inesperado.'); }
+    btn.disabled = false;
+    btn.textContent = 'Usar llave de seguridad';
+  }
 });
+function _b64url2buf(b64) {
+  const s = b64.replace(/-/g, '+').replace(/_/g, '/');
+  const bin = atob(s + '='.repeat((4 - s.length % 4) % 4));
+  return Uint8Array.from(bin, c => c.charCodeAt(0)).buffer;
+}
+function _buf2b64url(buf) {
+  const bytes = new Uint8Array(buf);
+  let s = '';
+  bytes.forEach(b => s += String.fromCharCode(b));
+  return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
 </script>
 <?php endif ?>
 

@@ -85,7 +85,60 @@ $base = $e($app->baseUrl());
 
 <script>
 document.getElementById('add-webauthn')?.addEventListener('click', async () => {
-  alert('WebAuthn estará disponible cuando se despliegue la versión completa con web-auth/webauthn-lib.');
+  const btn = document.getElementById('add-webauthn');
+  btn.disabled = true;
+  btn.textContent = 'Registrando…';
+  try {
+    const optRes = await fetch('<?= $base ?>/account/mfa/webauthn/register-options', {credentials: 'same-origin'});
+    if (!optRes.ok) { const e = await optRes.json(); throw new Error(e.error || 'Error obteniendo opciones.'); }
+    const options = await optRes.json();
+    // Decode base64url fields for the WebAuthn API.
+    options.challenge = _b64url2buf(options.challenge);
+    options.user.id = _b64url2buf(options.user.id);
+    if (options.excludeCredentials) {
+      options.excludeCredentials = options.excludeCredentials.map(c => ({...c, id: _b64url2buf(c.id)}));
+    }
+    const credential = await navigator.credentials.create({publicKey: options});
+    const label = prompt('Nombre para esta llave (opcional):', '') || '';
+    const body = {
+      id: _buf2b64url(credential.rawId),
+      rawId: _buf2b64url(credential.rawId),
+      type: credential.type,
+      response: {
+        clientDataJSON: _buf2b64url(credential.response.clientDataJSON),
+        attestationObject: _buf2b64url(credential.response.attestationObject),
+        transports: credential.response.getTransports ? credential.response.getTransports() : [],
+      },
+      label: label,
+    };
+    const regRes = await fetch('<?= $base ?>/account/mfa/webauthn/register', {
+      method: 'POST', credentials: 'same-origin',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(body),
+    });
+    const result = await regRes.json();
+    if (!regRes.ok || !result.ok) throw new Error(result.error || 'Error al registrar la llave.');
+    if (result.recoveryCodes) {
+      alert('Códigos de recuperación (guárdalos en un lugar seguro):\n\n' + result.recoveryCodes.join('\n'));
+    }
+    location.reload();
+  } catch (e) {
+    if (e.name === 'NotAllowedError') { alert('Operación cancelada por el usuario.'); }
+    else { alert(e.message || 'Error inesperado.'); }
+    btn.disabled = false;
+    btn.textContent = 'Añadir llave';
+  }
 });
+function _b64url2buf(b64) {
+  const s = b64.replace(/-/g, '+').replace(/_/g, '/');
+  const bin = atob(s + '='.repeat((4 - s.length % 4) % 4));
+  return Uint8Array.from(bin, c => c.charCodeAt(0)).buffer;
+}
+function _buf2b64url(buf) {
+  const bytes = new Uint8Array(buf);
+  let s = '';
+  bytes.forEach(b => s += String.fromCharCode(b));
+  return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
 </script>
 </main></body></html>
