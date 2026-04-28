@@ -180,33 +180,6 @@ Configura en **Settings → Secrets and variables → Actions**:
 | 9 | 🛡️ Seguridad (captcha, política MFA, bloqueo, expiración) | ✅ Completado |
 | 10 | 📦 Empaquetado, release y documentación | ✅ Completado |
 
-> **Nota sobre WebAuthn:** La infraestructura está preparada (esquema BD, UI, rutas, política HTTPS). El handshake completo se activa al instalar `web-auth/webauthn-lib` con `composer install`.
-
----
-
-## 🛠️ Desarrollo
-
-### Clonar y preparar
-
-```bash
-git clone https://github.com/pvernocchi/porra-mundial-2026.git
-cd porra-mundial-2026
-composer install
-```
-
-### Lint
-
-```bash
-find app public -name '*.php' -print0 | xargs -0 -n1 php -l
-```
-
-### Tests
-
-```bash
-vendor/bin/phpunit
-```
-
-> Los tests usan SQLite en memoria — no necesitas MySQL para ejecutarlos.
 
 ---
 
