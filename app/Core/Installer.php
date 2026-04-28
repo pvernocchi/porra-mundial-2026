@@ -161,7 +161,7 @@ final class Installer
         if (file_put_contents($file, $tpl, LOCK_EX) === false) {
             throw new \RuntimeException('No se pudo escribir config/config.php (permisos?).');
         }
-        @chmod($file, 0640);
+        @chmod($file, 0600);
     }
 
     public function writeInstalledLock(string $version): void

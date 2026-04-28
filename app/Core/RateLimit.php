@@ -32,7 +32,8 @@ final class RateLimit
 
         $fh = @fopen($file, 'c+');
         if ($fh === false) {
-            return ['allowed' => true, 'remaining' => $max, 'retryAfter' => 0];
+            // Fail closed: deny the request when rate-limit state is unavailable.
+            return ['allowed' => false, 'remaining' => 0, 'retryAfter' => $windowSeconds];
         }
         try {
             @flock($fh, LOCK_EX);

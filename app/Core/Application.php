@@ -162,6 +162,8 @@ final class Application
         // Auto-detect when not configured (used during installation).
         $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
         $host   = $_SERVER['HTTP_HOST'] ?? 'localhost';
+        // Sanitise the Host header to prevent header-injection attacks.
+        $host = preg_replace('/[^a-zA-Z0-9.\-:\[\]]/', '', (string)$host);
         return $scheme . '://' . $host;
     }
 }
