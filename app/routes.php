@@ -41,6 +41,7 @@ return static function (Application $app): Router {
     $router->post('/install/run',    fn(Request $r) => (new InstallController($app))->run($r));
     $router->get('/install/done',    fn(Request $r) => (new InstallController($app))->done($r));
     $router->any('/install/upgrade', fn(Request $r) => (new InstallController($app))->upgrade($r));
+    $router->any('/install/upgrade/force', fn(Request $r) => (new InstallController($app))->forceUpgrade($r));
 
     /* ---------- Anonymous home / login ---------- */
     $router->get('/', static function (Request $r) use ($app): Response {

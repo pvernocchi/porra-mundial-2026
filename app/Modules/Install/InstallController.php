@@ -280,11 +280,19 @@ final class InstallController
             return (new Response())->redirect($this->app->baseUrl() . '/install');
         }
         if (!version_compare($code, $have, '>')) {
+            $base = htmlspecialchars($this->app->baseUrl(), ENT_QUOTES);
+            // Show a link to force-upgrade when there is no version bump.
+            $forceLink = '';
+            if ($this->app->auth()->isAdmin()) {
+                $forceLink = '<p class="muted" style="margin-top:1em">'
+                    . '<a href="' . $base . '/install/upgrade/force">Forzar actualización de migraciones →</a></p>';
+            }
             return (new Response())->html(
                 $this->layout('Sin actualizaciones',
                     '<div class="alert alert-info">No hay migraciones pendientes (versión actual: '
                     . htmlspecialchars($have, ENT_QUOTES) . ').</div>'
-                    . '<a class="btn btn-primary" href="' . htmlspecialchars($this->app->baseUrl(), ENT_QUOTES) . '/login">Volver</a>'
+                    . '<a class="btn btn-primary" href="' . $base . '/login">Volver</a>'
+                    . $forceLink
                 )
             );
         }
@@ -310,7 +318,7 @@ final class InstallController
 
         try {
             $cfg = (array)$this->app->config()->get('db', []);
-            $this->inst->runMigrations($cfg);
+            $this->inst->runPendingMigrations($cfg);
             $this->inst->writeInstalledLock($code);
             $this->app->audit()->log('upgrade.applied', $auth->user()?->id, [
                 'from' => $have, 'to' => $code,
@@ -326,6 +334,91 @@ final class InstallController
             return (new Response())->html(
                 $this->layout('Error',
                     '<div class="alert alert-danger">No se pudo actualizar: '
+                    . htmlspecialchars($e->getMessage(), ENT_QUOTES) . '</div>'
+                ),
+                500
+            );
+        }
+    }
+
+    /**
+     * Force-upgrade: re-run pending migrations even when the application
+     * version matches the installed version. Useful after a failed upgrade,
+     * after manually adding migration files, or when troubleshooting.
+     *
+     * Requires admin authentication.
+     */
+    public function forceUpgrade(Request $req): Response
+    {
+        if (!$this->app->isInstalled()) {
+            return (new Response())->redirect($this->app->baseUrl() . '/install');
+        }
+
+        $auth = $this->app->auth();
+        if (!$auth->isAdmin()) {
+            return (new Response())->redirect($this->app->baseUrl() . '/login?next=/install/upgrade/force');
+        }
+
+        $code = $this->app->version();
+        $have = $this->app->installedVersion() ?? '0.0.0';
+        $base = htmlspecialchars($this->app->baseUrl(), ENT_QUOTES);
+
+        $lastMigration   = $this->inst->lastAppliedMigration();
+        $latestMigration = $this->inst->latestMigrationVersion();
+        $hasPending      = (int)$latestMigration > (int)$lastMigration;
+
+        if ($req->method() === 'GET') {
+            $migrationInfo = $hasPending
+                ? '<p>Migraciones pendientes: desde <code>' . htmlspecialchars($lastMigration, ENT_QUOTES)
+                  . '</code> hasta <code>' . htmlspecialchars($latestMigration, ENT_QUOTES) . '</code>.</p>'
+                : '<p>No hay migraciones nuevas, pero se actualizará el archivo <code>installed.lock</code>.</p>';
+
+            $body = '<div class="alert alert-warning">⚠️ Esto forzará la ejecución de migraciones pendientes '
+                . 'y actualizará el registro de versión, incluso si la versión no ha cambiado.</div>'
+                . '<p>Versión del código: <strong>' . htmlspecialchars($code, ENT_QUOTES) . '</strong> · '
+                . 'Versión instalada: <strong>' . htmlspecialchars($have, ENT_QUOTES) . '</strong></p>'
+                . $migrationInfo
+                . '<form method="post">' . $this->app->csrf()->field()
+                . '<button class="btn btn-primary" type="submit">Forzar actualización</button></form>'
+                . '<p style="margin-top:1em"><a href="' . $base . '/admin">← Volver al panel</a></p>';
+            return (new Response())->html($this->layout('Forzar actualización', $body));
+        }
+
+        if (!$this->app->csrf()->valid((string)$req->input('_token'))) {
+            return (new Response())->html(
+                $this->layout('Forzar actualización', '<div class="alert alert-danger">Token CSRF inválido</div>'),
+                400
+            );
+        }
+
+        try {
+            $cfg    = (array)$this->app->config()->get('db', []);
+            $result = $this->inst->runPendingMigrations($cfg);
+            $this->inst->writeInstalledLock($code);
+            $this->app->audit()->log('upgrade.forced', $auth->user()?->id, [
+                'version'    => $code,
+                'migrations' => $result['applied'],
+                'files'      => $result['files'],
+            ]);
+
+            $summary = $result['applied'] > 0
+                ? $result['applied'] . ' migración(es) aplicada(s): '
+                  . htmlspecialchars(implode(', ', $result['files']), ENT_QUOTES)
+                : 'No se aplicaron nuevas migraciones.';
+
+            return (new Response())->html(
+                $this->layout('Actualización forzada completada',
+                    '<div class="alert alert-success">Actualización forzada completada (versión '
+                    . htmlspecialchars($code, ENT_QUOTES) . ').</div>'
+                    . '<p>' . $summary . '</p>'
+                    . '<p>El archivo <code>installed.lock</code> ha sido actualizado.</p>'
+                    . '<a class="btn btn-primary" href="' . $base . '/admin">Ir al panel</a>'
+                )
+            );
+        } catch (\Throwable $e) {
+            return (new Response())->html(
+                $this->layout('Error',
+                    '<div class="alert alert-danger">No se pudo completar la actualización forzada: '
                     . htmlspecialchars($e->getMessage(), ENT_QUOTES) . '</div>'
                 ),
                 500

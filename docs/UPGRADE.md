@@ -22,6 +22,8 @@ Sube la nueva versión por FTP y las migraciones se aplican desde el navegador.
 - [📥 Paso 1 — Descargar la nueva versión](#-paso-1--descargar-la-nueva-versión)
 - [📤 Paso 2 — Subir los archivos por FTP](#-paso-2--subir-los-archivos-por-ftp)
 - [🚀 Paso 3 — Aplicar las migraciones](#-paso-3--aplicar-las-migraciones)
+  - [🌐 Opción A — Desde el navegador](#-opción-a--desde-el-navegador)
+  - [💻 Opción B — Desde la línea de comandos (CLI)](#-opción-b--desde-la-línea-de-comandos-cli)
 - [✅ Verificar la actualización](#-verificar-la-actualización)
 - [⏪ Rollback — Revertir a la versión anterior](#-rollback--revertir-a-la-versión-anterior)
 - [❓ Preguntas frecuentes](#-preguntas-frecuentes)
@@ -99,7 +101,13 @@ Conecta con tu cliente FTP y sube los archivos de la nueva versión **sobre la i
 
 ## 🚀 Paso 3 — Aplicar las migraciones
 
-Tras subir los archivos, abre cualquier URL de tu sitio en el navegador:
+Tras subir los archivos, tienes dos opciones para aplicar la actualización:
+
+---
+
+### 🌐 Opción A — Desde el navegador
+
+Abre cualquier URL de tu sitio en el navegador:
 
 <table>
 <tr>
@@ -140,11 +148,11 @@ Inicia sesión con tu cuenta de **administrador**. Solo los administradores pued
 
 **✅ Confirmar la actualización**
 
-Revisa el resumen de migraciones pendientes y pulsa **Confirmar actualización**.
+Revisa el resumen de migraciones pendientes y pulsa **Aplicar actualización**.
 
 El sistema:
-1. Ejecuta las migraciones SQL pendientes en orden
-2. Actualiza el archivo `storage/installed.lock`
+1. Ejecuta **solo las migraciones pendientes** (las que no se han aplicado aún)
+2. Actualiza el archivo `storage/installed.lock` con la nueva versión y la última migración aplicada
 3. Te redirige al panel principal
 
 </td>
@@ -153,6 +161,63 @@ El sistema:
 
 > [!NOTE]
 > Si **no hay migraciones pendientes** (p.ej. una release que sólo corrige bugs en PHP/CSS/JS), el sitio funcionará con normalidad sin necesidad de pasar por la pantalla de upgrade.
+
+---
+
+### 💻 Opción B — Desde la línea de comandos (CLI)
+
+Si tienes acceso SSH al servidor (o ejecutas la aplicación en un entorno con terminal), puedes usar el script `bin/upgrade.php`:
+
+#### Modo interactivo (pide confirmación)
+
+```bash
+php bin/upgrade.php
+```
+
+Ejemplo de salida:
+
+```
+╔══════════════════════════════════════════╗
+║   Porra Mundial 2026 — Actualización    ║
+╚══════════════════════════════════════════╝
+
+  Versión instalada : 0.1.0
+  Versión nueva     : 0.2.0
+  Última migración  : 0003
+  Migraciones hasta : 0005
+
+  Migraciones pendientes:
+    • 0004_add_notifications.sql
+    • 0005_add_user_preferences.sql
+
+¿Aplicar la actualización? [s/N] s
+Aplicando migraciones de base de datos…
+  ✓ 0004_add_notifications.sql
+  ✓ 0005_add_user_preferences.sql
+  2 migración(es) aplicada(s).
+
+✓ Actualización completada — versión 0.2.0.
+```
+
+#### Modo automático (sin confirmación)
+
+```bash
+php bin/upgrade.php --force
+```
+
+Ideal para scripts de despliegue automatizado o integración con pipelines CI/CD.
+
+#### Códigos de salida
+
+| Código | Significado |
+|:------:|:------------|
+| `0` | Éxito — actualizaciones aplicadas o nada pendiente |
+| `1` | Error — la app no está instalada o falló una migración |
+
+> [!TIP]
+> El script CLI es útil para automatizar actualizaciones en pipelines de despliegue.
+> Por ejemplo, tras un `git pull` o un despliegue FTP automático, basta con ejecutar
+> `php bin/upgrade.php --force` para aplicar las migraciones pendientes.
 
 ---
 
@@ -240,6 +305,20 @@ Abre tu dominio y comprueba que todo funciona con la versión anterior.
 <summary>🤔 <strong>¿Puedo saltar versiones? (p.ej. de v0.1.0 a v0.3.0)</strong></summary>
 
 **Sí.** Las migraciones SQL son incrementales y se aplican en orden. El sistema detecta cuáles faltan y las ejecuta todas en secuencia, sin importar cuántas versiones hayas saltado.
+
+</details>
+
+<details>
+<summary>🤔 <strong>¿Cuál es la diferencia entre actualizar desde el navegador y desde CLI?</strong></summary>
+
+Ambos métodos hacen lo mismo: ejecutan las migraciones de base de datos pendientes y actualizan el archivo `storage/installed.lock`.
+
+| | 🌐 Navegador | 💻 CLI (`bin/upgrade.php`) |
+|:-|:-------------|:--------------------------|
+| **Acceso** | Solo necesitas un navegador | Necesitas acceso SSH o terminal |
+| **Autenticación** | Requiere login de admin | Sin autenticación (acceso al servidor = confianza) |
+| **Automatización** | Manual | Se puede integrar en scripts de despliegue con `--force` |
+| **Ideal para** | Hostings compartidos (FTP) | Servidores con SSH, pipelines CI/CD |
 
 </details>
 

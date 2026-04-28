@@ -91,20 +91,69 @@ final class Installer
         $db = Database::fromConfig($dbConfig);
         $applied = 0;
         foreach ($this->migrationFiles() as $file) {
-            $sql = (string)file_get_contents($file);
-            $sql = $this->normaliseSql($sql, $db->driver());
-            $sql = $db->rewrite($sql);
-            // Split on `;` at end of line — naive but enough for our schema.
-            $statements = array_filter(array_map('trim', preg_split('/;\s*\n/m', $sql) ?: []));
-            foreach ($statements as $stmt) {
-                if ($stmt === '') {
-                    continue;
-                }
-                $db->pdo()->exec($stmt);
-            }
+            $this->executeMigrationFile($file, $db);
             $applied++;
         }
         return $applied;
+    }
+
+    /**
+     * Run only migration files that have not been applied yet (i.e. whose
+     * numeric prefix is greater than the last recorded migration).
+     *
+     * @param array<string, mixed> $dbConfig
+     * @return array{applied: int, files: list<string>}
+     */
+    public function runPendingMigrations(array $dbConfig): array
+    {
+        $lastApplied = $this->lastAppliedMigration();
+        $db = Database::fromConfig($dbConfig);
+        $appliedFiles = [];
+
+        foreach ($this->migrationFiles() as $file) {
+            $prefix = explode('_', basename($file, '.sql'))[0] ?? '0000';
+            if ((int)$prefix <= (int)$lastApplied) {
+                continue;
+            }
+            $this->executeMigrationFile($file, $db);
+            $appliedFiles[] = basename($file);
+        }
+
+        return ['applied' => count($appliedFiles), 'files' => $appliedFiles];
+    }
+
+    /**
+     * Return the numeric prefix of the last migration that was applied,
+     * read from the installed.lock file. Returns '0000' if unknown.
+     */
+    public function lastAppliedMigration(): string
+    {
+        $file = $this->app->path('storage/installed.lock');
+        if (!is_file($file)) {
+            return '0000';
+        }
+        $data = json_decode((string)file_get_contents($file), true);
+        return is_array($data) && isset($data['last_migration'])
+            ? (string)$data['last_migration']
+            : '0000';
+    }
+
+    /**
+     * Execute a single migration SQL file against the given database.
+     */
+    private function executeMigrationFile(string $file, Database $db): void
+    {
+        $sql = (string)file_get_contents($file);
+        $sql = $this->normaliseSql($sql, $db->driver());
+        $sql = $db->rewrite($sql);
+        // Split on `;` at end of line — naive but enough for our schema.
+        $statements = array_filter(array_map('trim', preg_split('/;\s*\n/m', $sql) ?: []));
+        foreach ($statements as $stmt) {
+            if ($stmt === '') {
+                continue;
+            }
+            $db->pdo()->exec($stmt);
+        }
     }
 
     /**
@@ -167,11 +216,25 @@ final class Installer
     public function writeInstalledLock(string $version): void
     {
         $file = $this->app->path('storage/installed.lock');
-        $payload = [
-            'version'    => $version,
-            'installed_at' => gmdate('c'),
-            'php'        => PHP_VERSION,
-        ];
+
+        // Preserve existing data (e.g. original installed_at) when upgrading.
+        $existing = [];
+        if (is_file($file)) {
+            $existing = json_decode((string)file_get_contents($file), true) ?: [];
+        }
+
+        $payload = array_merge($existing, [
+            'version'        => $version,
+            'last_migration' => $this->latestMigrationVersion(),
+            'updated_at'     => gmdate('c'),
+            'php'            => PHP_VERSION,
+        ]);
+
+        // Set installed_at only on first install.
+        if (!isset($payload['installed_at'])) {
+            $payload['installed_at'] = $payload['updated_at'];
+        }
+
         file_put_contents($file, json_encode($payload, JSON_PRETTY_PRINT) ?: '{}', LOCK_EX);
         @chmod($file, 0640);
     }
