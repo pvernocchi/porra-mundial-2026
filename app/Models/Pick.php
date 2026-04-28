@@ -33,6 +33,10 @@ final class Pick
      */
     public function saveForUser(int $userId, array $teamIdsByPot): void
     {
+        if ($this->hasCompletePicks($userId)) {
+            return;
+        }
+
         $this->db->beginTransaction();
         try {
             $this->db->run('DELETE FROM {prefix:picks} WHERE user_id = :uid', ['uid' => $userId]);

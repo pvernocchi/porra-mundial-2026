@@ -82,7 +82,8 @@ final class GameController
             $currentPicks[$p->pot] = $p->teamId;
         }
 
-        $locked = $this->app->settings()->get('game.picks_locked', '0') === '1';
+        $locked = $this->app->settings()->get('game.picks_locked', '0') === '1'
+            || $pickModel->hasCompletePicks($user->id);
 
         return (new Response())->html($this->app->view()->render('game.picks', [
             'teamsByPot'   => $teamsByPot,
@@ -106,13 +107,13 @@ final class GameController
             return (new Response())->redirect($this->app->baseUrl() . '/game/picks');
         }
 
-        $locked = $this->app->settings()->get('game.picks_locked', '0') === '1';
+        $teamModel = new Team($this->app->db());
+        $pickModel = new Pick($this->app->db());
+        $locked = $this->app->settings()->get('game.picks_locked', '0') === '1'
+            || $pickModel->hasCompletePicks($user->id);
         if ($locked) {
             return (new Response())->redirect($this->app->baseUrl() . '/game/picks');
         }
-
-        $teamModel = new Team($this->app->db());
-        $pickModel = new Pick($this->app->db());
 
         // Validate: 1 team per pot (pots 1-6)
         $teamIdsByPot = [];
