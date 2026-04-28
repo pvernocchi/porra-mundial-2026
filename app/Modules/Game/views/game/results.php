@@ -4,6 +4,8 @@
 /** @var callable $e */
 /** @var array<int, \App\Models\GameMatch> $matches */
 
+use App\Core\Flags;
+
 $phaseLabels = [
     'group'       => 'Fase de grupos',
     'round_of_32' => 'Dieciseisavos',
@@ -14,35 +16,36 @@ $phaseLabels = [
     'final'       => 'Final',
 ];
 
-$view->extend('game.layout', ['title' => 'Resultados']);
+$view->extend('game.layout', ['title' => '📊 Resultados']);
 $view->section('content');
 ?>
 
+<div class="game-hero">
+  <h1>📊 Resultados</h1>
+  <p>Partidos jugados en el torneo</p>
+</div>
+
 <?php if ($matches === []): ?>
-  <p>Aún no hay resultados registrados.</p>
+  <div class="alert alert-info">Aún no hay resultados registrados.</div>
 <?php else: ?>
-  <table class="table">
-    <thead>
-      <tr>
-        <th>Fecha</th>
-        <th>Fase</th>
-        <th>Local</th>
-        <th>Resultado</th>
-        <th>Visitante</th>
-      </tr>
-    </thead>
-    <tbody>
-    <?php foreach ($matches as $m): ?>
-      <tr>
-        <td><?= $e($m->matchDate ?? '—') ?></td>
-        <td><?= $e($phaseLabels[$m->phase] ?? $m->phase) ?></td>
-        <td><?= $e($m->homeTeamName) ?></td>
-        <td><strong><?= $m->homeGoals ?? '—' ?> – <?= $m->awayGoals ?? '—' ?></strong></td>
-        <td><?= $e($m->awayTeamName) ?></td>
-      </tr>
-    <?php endforeach ?>
-    </tbody>
-  </table>
+  <?php foreach ($matches as $m): ?>
+    <div class="match-card">
+      <div class="match-team">
+        <?= Flags::img($m->homeTeamName, 28) ?>
+        <span><?= $e($m->homeTeamName) ?></span>
+      </div>
+      <div>
+        <div class="match-score"><?= $m->homeGoals ?? '—' ?> – <?= $m->awayGoals ?? '—' ?></div>
+        <div class="match-meta">
+          <span class="phase-badge phase-<?= $e($m->phase) ?>"><?= $e($phaseLabels[$m->phase] ?? $m->phase) ?></span>
+        </div>
+      </div>
+      <div class="match-team away">
+        <?= Flags::img($m->awayTeamName, 28) ?>
+        <span><?= $e($m->awayTeamName) ?></span>
+      </div>
+    </div>
+  <?php endforeach ?>
 <?php endif ?>
 
 <?php $view->endSection(); ?>

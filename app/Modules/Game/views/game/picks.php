@@ -7,36 +7,42 @@
 /** @var bool $locked */
 /** @var bool $saved */
 
+use App\Core\Flags;
+
 $potLabels = [
-    1 => 'Bombo 1 – Favoritos',
-    2 => 'Bombo 2 – Grandes aspirantes',
-    3 => 'Bombo 3 – Sólidos',
-    4 => 'Bombo 4 – Competitivos',
-    5 => 'Bombo 5 – Outsiders',
-    6 => 'Bombo 6 – Improbables',
+    1 => ['Bombo 1', 'Favoritos', '⭐'],
+    2 => ['Bombo 2', 'Grandes aspirantes', '🔥'],
+    3 => ['Bombo 3', 'Sólidos', '💪'],
+    4 => ['Bombo 4', 'Competitivos', '⚡'],
+    5 => ['Bombo 5', 'Outsiders', '🎲'],
+    6 => ['Bombo 6', 'Improbables', '🌟'],
 ];
 
-$view->extend('game.layout', ['title' => 'Mis equipos']);
+$view->extend('game.layout', ['title' => '🎯 Mis equipos']);
 $view->section('content');
 $base = $e($app->baseUrl());
 ?>
 
+<div class="game-hero">
+  <h1>🎯 Elige tus selecciones</h1>
+  <p>Selecciona <strong>1 equipo de cada bombo</strong> (6 en total)</p>
+</div>
+
 <?php if ($saved): ?>
-  <div class="alert alert-info">✅ Tus equipos se han guardado correctamente.</div>
+  <div class="alert alert-success">✅ ¡Tus equipos se han guardado correctamente!</div>
 <?php endif ?>
 
 <?php if ($locked): ?>
-  <div class="alert alert-info">🔒 Las selecciones están bloqueadas. Ya no se pueden modificar.</div>
+  <div class="alert alert-warning">🔒 Las selecciones están bloqueadas. Ya no se pueden modificar.</div>
 <?php endif ?>
-
-<p>Elige <strong>1 selección de cada bombo</strong> (6 equipos en total):</p>
 
 <form method="post" action="<?= $base ?>/game/picks">
   <?= $app->csrf()->field() ?>
 
   <?php foreach ($teamsByPot as $pot => $teams): ?>
+    <?php $info = $potLabels[$pot] ?? ['Bombo ' . $pot, '', '📌']; ?>
     <fieldset <?= $locked ? 'disabled' : '' ?>>
-      <legend><?= $e($potLabels[$pot] ?? 'Bombo ' . $pot) ?></legend>
+      <legend><?= $info[2] ?> <?= $e($info[0]) ?> — <?= $e($info[1]) ?></legend>
       <div class="pick-grid">
         <?php foreach ($teams as $team): ?>
           <label class="pick-option">
@@ -45,6 +51,7 @@ $base = $e($app->baseUrl());
                    value="<?= $team->id ?>"
                    <?= (isset($currentPicks[$pot]) && $currentPicks[$pot] === $team->id) ? 'checked' : '' ?>
                    required>
+            <?= Flags::img($team->name, 24) ?>
             <span><?= $e($team->name) ?></span>
           </label>
         <?php endforeach ?>
@@ -53,7 +60,11 @@ $base = $e($app->baseUrl());
   <?php endforeach ?>
 
   <?php if (!$locked): ?>
-    <button type="submit" class="btn btn-primary">💾 Guardar selección</button>
+    <div style="text-align:center;margin:1.5rem 0">
+      <button type="submit" class="btn btn-primary" style="padding:.7rem 2rem;font-size:1.05rem">
+        💾 Guardar selección
+      </button>
+    </div>
   <?php endif ?>
 </form>
 

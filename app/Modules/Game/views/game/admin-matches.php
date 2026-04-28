@@ -5,6 +5,8 @@
 /** @var array<int, \App\Models\GameMatch> $matches */
 /** @var array<int, \App\Models\Team> $teams */
 
+use App\Core\Flags;
+
 $phaseLabels = [
     'group'       => 'Fase de grupos',
     'round_of_32' => 'Dieciseisavos',
@@ -98,9 +100,9 @@ $base = $e($app->baseUrl());
       <tr>
         <td><?= $e($m->matchDate ?? '—') ?></td>
         <td><?= $e($phaseLabels[$m->phase] ?? $m->phase) ?></td>
-        <td><?= $e($m->homeTeamName) ?></td>
+        <td><?= Flags::img($m->homeTeamName, 20) ?> <?= $e($m->homeTeamName) ?></td>
         <td><?= $m->homeGoals !== null ? $m->homeGoals . ' – ' . $m->awayGoals : '—' ?></td>
-        <td><?= $e($m->awayTeamName) ?></td>
+        <td><?= Flags::img($m->awayTeamName, 20) ?> <?= $e($m->awayTeamName) ?></td>
         <td>🟨<?= $m->homeYellows ?> 🟨🟨<?= $m->homeDoubleYellows ?> 🟥<?= $m->homeReds ?></td>
         <td>🟨<?= $m->awayYellows ?> 🟨🟨<?= $m->awayDoubleYellows ?> 🟥<?= $m->awayReds ?></td>
         <td><?= $m->played ? '✅' : '⏳' ?></td>

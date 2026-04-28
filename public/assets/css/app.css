@@ -73,3 +73,137 @@ body.install { background: var(--bg); }
 body.install header { padding-top: 2rem; }
 body.install h1 { margin-bottom: .25rem; }
 code, pre { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; }
+
+/* ═══════════════ Game module styles ═══════════════ */
+.flag { vertical-align: middle; border-radius: 2px; box-shadow: 0 0 0 1px rgba(0,0,0,.08); }
+
+/* Pick grid */
+.pick-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: .5rem;
+  margin: .5rem 0 1rem;
+}
+.pick-option {
+  display: flex !important;
+  align-items: center;
+  gap: .5rem;
+  padding: .6rem .8rem;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all .15s ease;
+  font-weight: 400 !important;
+  margin: 0 !important;
+  background: var(--surface);
+}
+.pick-option:hover { border-color: var(--primary); background: #f0f6ff; }
+.pick-option input[type=radio] { accent-color: var(--primary); width: auto; }
+.pick-option input[type=radio]:checked + span { font-weight: 600; }
+.pick-option:has(input:checked) {
+  border-color: var(--primary);
+  background: #eaf2fc;
+  box-shadow: 0 0 0 1px var(--primary);
+}
+
+fieldset {
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem 1.25rem;
+  margin: 0 0 1rem;
+  background: var(--surface);
+}
+fieldset legend {
+  font-weight: 700;
+  font-size: 1.05rem;
+  padding: 0 .5rem;
+  color: var(--primary);
+}
+
+/* Leaderboard */
+.leaderboard-table { font-size: .95rem; }
+.leaderboard-table th { position: sticky; top: 0; z-index: 1; }
+.leaderboard-table .rank { text-align: center; font-weight: 700; font-size: 1.1rem; }
+.leaderboard-table .rank-1 { color: #d4a017; }
+.leaderboard-table .rank-2 { color: #8a8a8a; }
+.leaderboard-table .rank-3 { color: #b87333; }
+.leaderboard-table .team-cell { white-space: nowrap; }
+.leaderboard-table .team-cell small { color: var(--muted); font-size: .8rem; }
+.leaderboard-table .total { font-size: 1.15rem; font-weight: 700; color: var(--primary); }
+.leaderboard-table .player-name { font-weight: 600; }
+
+/* Scoring rules cards */
+.rules-section { margin-top: 2.5rem; }
+.rules-section h2 { display: flex; align-items: center; gap: .5rem; }
+.rules-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+.rules-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1.15rem;
+  transition: box-shadow .2s;
+}
+.rules-card:hover { box-shadow: 0 2px 12px rgba(0,0,0,.07); }
+.rules-card h3 { margin: 0 0 .5rem; font-size: 1rem; display: flex; align-items: center; gap: .4rem; }
+.rules-card ul { margin: 0; padding-left: 1.1rem; font-size: .9rem; line-height: 1.7; }
+
+/* Results */
+.match-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: .85rem 1.25rem;
+  margin-bottom: .5rem;
+  transition: box-shadow .2s;
+}
+.match-card:hover { box-shadow: 0 2px 10px rgba(0,0,0,.06); }
+.match-team { display: flex; align-items: center; gap: .5rem; min-width: 140px; font-weight: 500; }
+.match-team.away { flex-direction: row-reverse; text-align: right; }
+.match-score { font-size: 1.3rem; font-weight: 700; letter-spacing: .1rem; min-width: 60px; text-align: center; }
+.match-meta { text-align: center; font-size: .8rem; color: var(--muted); min-width: 120px; }
+
+/* Phase badge */
+.phase-badge {
+  display: inline-block;
+  padding: .15rem .6rem;
+  border-radius: 999px;
+  font-size: .78rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: .03em;
+}
+.phase-group       { background: #e0f2fe; color: #0369a1; }
+.phase-round_of_32 { background: #e8f5e9; color: #2e7d32; }
+.phase-round_of_16 { background: #e8f5e9; color: #2e7d32; }
+.phase-quarter     { background: #fff3e0; color: #e65100; }
+.phase-semi        { background: #fce4ec; color: #c62828; }
+.phase-third_place { background: #f3e5f5; color: #7b1fa2; }
+.phase-final       { background: #fff9c4; color: #f57f17; }
+
+/* SVG icon helper */
+.icon { width: 1em; height: 1em; vertical-align: -0.125em; fill: currentColor; }
+
+/* Nav improvements */
+.topbar nav a.active { background: var(--primary); color: #fff !important; border-radius: 6px; }
+
+/* Hero header */
+.game-hero {
+  text-align: center;
+  padding: 1.5rem 0 .5rem;
+}
+.game-hero h1 { font-size: 1.6rem; margin-bottom: .25rem; }
+.game-hero p { color: var(--muted); margin-top: 0; }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .topbar .container { flex-wrap: wrap; gap: .5rem; }
+  .topbar nav { gap: .4rem; font-size: .9rem; }
+  .pick-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+  .match-card { flex-wrap: wrap; gap: .5rem; }
+  .match-team { min-width: 100px; }
+  .leaderboard-table { font-size: .82rem; }
+  .leaderboard-table .team-cell { font-size: .78rem; }
+}
