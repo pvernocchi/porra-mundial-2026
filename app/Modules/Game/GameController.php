@@ -107,13 +107,16 @@ final class GameController
             return (new Response())->redirect($this->app->baseUrl() . '/game/picks');
         }
 
-        $teamModel = new Team($this->app->db());
-        $pickModel = new Pick($this->app->db());
-        $locked = $this->app->settings()->get('game.picks_locked', '0') === '1'
-            || $pickModel->hasCompletePicks($user->id);
-        if ($locked) {
+        if ($this->app->settings()->get('game.picks_locked', '0') === '1') {
             return (new Response())->redirect($this->app->baseUrl() . '/game/picks');
         }
+
+        $pickModel = new Pick($this->app->db());
+        if ($pickModel->hasCompletePicks($user->id)) {
+            return (new Response())->redirect($this->app->baseUrl() . '/game/picks');
+        }
+
+        $teamModel = new Team($this->app->db());
 
         // Validate: 1 team per pot (pots 1-6)
         $teamIdsByPot = [];
