@@ -36,8 +36,17 @@ $base = $e($app->baseUrl());
     <thead><tr><th>Tipo</th><th>Etiqueta</th><th>Creado</th><th>Último uso</th><th></th></tr></thead>
     <tbody>
     <?php foreach ($creds as $c): ?>
+      <?php
+        $typeLabel = match ($c['type']) {
+            'totp' => 'TOTP',
+            'webauthn' => str_contains((string)($c['transports'] ?? ''), 'internal')
+                ? 'Windows Hello / Touch ID'
+                : 'Llave de seguridad (WebAuthn)',
+            default => $e((string)$c['type']),
+        };
+      ?>
       <tr>
-        <td><?= $e((string)$c['type']) ?></td>
+        <td><?= $typeLabel ?></td>
         <td><?= $e((string)$c['label']) ?></td>
         <td><?= $e((string)$c['created_at']) ?></td>
         <td><?= $e((string)($c['last_used_at'] ?? '—')) ?></td>

@@ -30,15 +30,18 @@ $base = $e($app->baseUrl());
 <?php endif ?>
 
 <?php if ($hasWebauthn): ?>
-<hr>
-<p>O usa una llave de seguridad / Windows Hello:</p>
-<button class="btn btn-secondary" id="webauthn-btn" type="button">Usar llave de seguridad</button>
+<?php if ($hasTotp): ?><hr><?php endif ?>
+<p><?= $hasTotp ? 'O usa' : 'Usa' ?> una llave de seguridad (YubiKey), Windows Hello o Touch ID:</p>
+<button class="btn <?= $hasTotp ? 'btn-secondary' : 'btn-primary' ?>" id="webauthn-btn" type="button">Usar llave de seguridad / Windows Hello</button>
 <p class="muted"><small>Requiere que el sitio se sirva sobre HTTPS.</small></p>
+<p id="webauthn-status" class="muted" style="display:none"></p>
 <script>
-document.getElementById('webauthn-btn')?.addEventListener('click', async () => {
+async function _doWebauthnLogin() {
   const btn = document.getElementById('webauthn-btn');
+  const status = document.getElementById('webauthn-status');
   btn.disabled = true;
   btn.textContent = 'Verificando…';
+  status.style.display = 'none';
   try {
     const optRes = await fetch('<?= $base ?>/api/webauthn/login-options', {credentials: 'same-origin'});
     if (!optRes.ok) { const e = await optRes.json(); throw new Error(e.error || 'Error obteniendo opciones.'); }
@@ -48,6 +51,7 @@ document.getElementById('webauthn-btn')?.addEventListener('click', async () => {
       options.allowCredentials = options.allowCredentials.map(c => ({...c, id: _b64url2buf(c.id)}));
     }
     const assertion = await navigator.credentials.get({publicKey: options});
+    btn.textContent = 'Validando…';
     const body = {
       id: _buf2b64url(assertion.rawId),
       rawId: _buf2b64url(assertion.rawId),
@@ -68,12 +72,22 @@ document.getElementById('webauthn-btn')?.addEventListener('click', async () => {
     if (!loginRes.ok || !result.ok) throw new Error(result.error || 'Verificación fallida.');
     window.location.href = result.redirect || '<?= $base ?>/admin';
   } catch (e) {
-    if (e.name === 'NotAllowedError') { alert('Operación cancelada por el usuario.'); }
-    else { alert(e.message || 'Error inesperado.'); }
+    if (e.name === 'NotAllowedError') {
+      status.textContent = 'Operación cancelada.';
+      status.style.display = '';
+    } else {
+      status.textContent = e.message || 'Error inesperado.';
+      status.style.display = '';
+    }
     btn.disabled = false;
-    btn.textContent = 'Usar llave de seguridad';
+    btn.textContent = 'Usar llave de seguridad / Windows Hello';
   }
-});
+}
+document.getElementById('webauthn-btn')?.addEventListener('click', _doWebauthnLogin);
+<?php if (!$hasTotp): ?>
+// Auto-trigger WebAuthn when it's the only MFA method available.
+if (window.PublicKeyCredential) { setTimeout(_doWebauthnLogin, 300); }
+<?php endif ?>
 function _b64url2buf(b64) {
   const s = b64.replace(/-/g, '+').replace(/_/g, '/');
   const bin = atob(s + '='.repeat((4 - s.length % 4) % 4));
