@@ -10,7 +10,7 @@
 /** @var int $window */
 /** @var int $sessionIdle */
 /** @var ?string $msg */
-$view->extend('layout', ['title' => 'Seguridad', 'flash' => $msg ?? null]);
+$view->extend('admin.layout', ['title' => 'Seguridad', 'flash' => $msg ?? null]);
 $view->section('content');
 $base = $e($app->baseUrl());
 ?>

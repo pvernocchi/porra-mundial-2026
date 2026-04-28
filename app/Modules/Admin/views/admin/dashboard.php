@@ -6,7 +6,7 @@
 /** @var array<int, \App\Models\User> $recentUsers */
 /** @var array<int, array<string, mixed>> $pendingInvites */
 /** @var array<int, array<string, mixed>> $audit */
-$view->extend('layout', ['title' => 'Panel de administración']);
+$view->extend('admin.layout', ['title' => 'Panel de administración']);
 $view->section('content');
 $base = $e($app->baseUrl());
 ?>
