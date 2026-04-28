@@ -190,6 +190,75 @@ final class Score
     }
 
     /**
+     * Detailed score breakdown for a single user.
+     * @return array{total: float, rank: int, total_players: int, teams: array<int, array{team_id: int, team_name: string, pot: int, match_pts: float, progress_pts: float, award_pts: float, total: float}>}
+     */
+    public function userScoreBreakdown(int $userId): array
+    {
+        $picks = $this->db->fetchAll(
+            'SELECT p.team_id, p.pot, t.name AS team_name
+             FROM {prefix:picks} p
+             JOIN {prefix:teams} t ON t.id = p.team_id
+             WHERE p.user_id = :uid
+             ORDER BY p.pot',
+            ['uid' => $userId]
+        );
+
+        $allMatches = (new GameMatch($this->db))->played();
+        $matchesByTeam = [];
+        foreach ($allMatches as $m) {
+            $matchesByTeam[$m->homeTeamId][] = $m;
+            $matchesByTeam[$m->awayTeamId][] = $m;
+        }
+
+        $teams = [];
+        $total = 0.0;
+        foreach ($picks as $r) {
+            $teamId = (int)$r['team_id'];
+            $matchPts    = $this->teamMatchPoints($teamId, $matchesByTeam[$teamId] ?? []);
+            $progressPts = $this->teamProgressPoints($teamId);
+            $awardPts    = $this->teamAwardPoints($teamId);
+            $teamTotal   = $matchPts + $progressPts + $awardPts;
+            $total += $teamTotal;
+            $teams[] = [
+                'team_id'      => $teamId,
+                'team_name'    => (string)$r['team_name'],
+                'pot'          => (int)$r['pot'],
+                'match_pts'    => $matchPts,
+                'progress_pts' => $progressPts,
+                'award_pts'    => $awardPts,
+                'total'        => $teamTotal,
+            ];
+        }
+
+        // Determine rank from leaderboard
+        $board = $this->leaderboard();
+        $rank = 0;
+        $pos = 0;
+        $prevTotal = null;
+        foreach ($board as $entry) {
+            $pos++;
+            if ($entry['total'] !== $prevTotal) {
+                $rank = $pos;
+                $prevTotal = $entry['total'];
+            }
+            if ($entry['user_id'] === $userId) {
+                break;
+            }
+        }
+        if ($pos > 0 && ($board[$pos - 1]['user_id'] ?? 0) !== $userId) {
+            $rank = 0; // user not found in board
+        }
+
+        return [
+            'total'         => $total,
+            'rank'          => $rank,
+            'total_players' => count($board),
+            'teams'         => $teams,
+        ];
+    }
+
+    /**
      * Save/update a tournament progress achievement.
      */
     public function addProgress(int $teamId, string $achievement): void

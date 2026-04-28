@@ -24,7 +24,8 @@ final class AuthController
     public function showLogin(Request $req): Response
     {
         if ($this->app->auth()->check()) {
-            return (new Response())->redirect($this->app->baseUrl() . '/admin');
+            $target = $this->app->auth()->canManageUsers() ? '/admin' : '/home';
+            return (new Response())->redirect($this->app->baseUrl() . $target);
         }
         $error = $this->app->session()->flash('login_error');
         $next  = (string)$req->query('next', '');
@@ -180,11 +181,12 @@ final class AuthController
     /**
      * Validate a redirect target to prevent open-redirect attacks.
      * Only relative paths (starting with /) are accepted; anything else
-     * (including protocol-relative URLs like //evil.com) falls back to /admin.
+     * (including protocol-relative URLs like //evil.com) falls back to
+     * the role-appropriate default.
      */
     private function safeRedirect(string $url): string
     {
-        $default = $this->app->baseUrl() . '/admin';
+        $default = $this->app->baseUrl() . ($this->app->auth()->canManageUsers() ? '/admin' : '/home');
         if ($url === '') {
             return $default;
         }

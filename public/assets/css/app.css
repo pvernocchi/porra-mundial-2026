@@ -19,7 +19,6 @@ body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helve
 .container { max-width: 1100px; margin: 0 auto; padding: 1rem 1.25rem; }
 .container.narrow { max-width: 640px; }
 .muted { color: var(--muted); }
-.brand { font-weight: 600; text-decoration: none; color: var(--text); }
 .topbar { background: var(--surface); border-bottom: 1px solid var(--border); }
 .topbar .container { display: flex; align-items: center; gap: 1.5rem; }
 .topbar nav { display: flex; gap: 1rem; flex: 1; }
@@ -186,24 +185,135 @@ fieldset legend {
 /* SVG icon helper */
 .icon { width: 1em; height: 1em; vertical-align: -0.125em; fill: currentColor; }
 
+/* Nav SVG icons */
+.nav-icon { width: 1.1em; height: 1.1em; vertical-align: -0.15em; flex-shrink: 0; }
+
+/* Brand */
+.brand { display: flex; align-items: center; gap: .4rem; font-weight: 600; text-decoration: none; color: var(--text); }
+.brand-icon { width: 1.4em; height: 1.4em; color: var(--primary); }
+
 /* Nav improvements */
+.topbar nav a { display: inline-flex; align-items: center; gap: .35rem; }
 .topbar nav a.active { background: var(--primary); color: #fff !important; border-radius: 6px; }
+.nav-admin-link { border-left: 1px solid var(--border); margin-left: .25rem; padding-left: .75rem !important; }
 
-/* Hero header */
-.game-hero {
-  text-align: center;
-  padding: 1.5rem 0 .5rem;
+/* Mobile nav toggle */
+.nav-toggle { display: none; background: none; border: 1px solid var(--border); border-radius: 6px; padding: .3rem .5rem; cursor: pointer; color: var(--text); }
+
+/* User area */
+.user-name { font-size: .9rem; }
+
+/* ═══════════════ Homepage ═══════════════ */
+.home-welcome { text-align: center; padding: 2.5rem 0 1rem; }
+.home-welcome-icon { margin-bottom: .75rem; }
+.home-welcome h1 { font-size: 1.8rem; margin: 0 0 .35rem; background: linear-gradient(135deg, var(--primary), #7c3aed); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.home-welcome-sub { color: var(--muted); margin: 0; font-size: 1.05rem; max-width: 500px; margin-inline: auto; }
+
+/* Stats bar */
+.home-stats { display: flex; justify-content: center; gap: 1.5rem; margin: 1.5rem 0 2.5rem; flex-wrap: wrap; }
+.home-stat-card {
+  display: flex; flex-direction: column; align-items: center;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+  padding: 1.25rem 2rem; min-width: 140px;
+  transition: box-shadow .2s, transform .2s;
 }
-.game-hero h1 { font-size: 1.6rem; margin-bottom: .25rem; }
-.game-hero p { color: var(--muted); margin-top: 0; }
+.home-stat-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,.07); transform: translateY(-2px); }
+.home-stat-icon { width: 1.6rem; height: 1.6rem; color: var(--primary); margin-bottom: .4rem; }
+.home-stat-value { font-size: 1.8rem; font-weight: 700; color: var(--text); line-height: 1.1; }
+.home-stat-label { font-size: .82rem; color: var(--muted); margin-top: .15rem; }
 
-/* Responsive */
+/* Navigation cards */
+.home-nav-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+.home-card {
+  display: flex; align-items: center; gap: 1rem;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+  padding: 1.25rem 1.5rem;
+  text-decoration: none; color: var(--text);
+  transition: box-shadow .25s, transform .25s, border-color .25s;
+  position: relative; overflow: hidden;
+}
+.home-card::before {
+  content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; border-radius: 14px 0 0 14px;
+  transition: width .25s;
+}
+.home-card:hover { box-shadow: 0 8px 30px rgba(0,0,0,.08); transform: translateY(-3px); }
+.home-card:hover::before { width: 5px; }
+.home-card--picks::before   { background: linear-gradient(180deg, #0284c7, #38bdf8); }
+.home-card--scores::before  { background: linear-gradient(180deg, #7c3aed, #a78bfa); }
+.home-card--leaderboard::before { background: linear-gradient(180deg, #d97706, #fbbf24); }
+.home-card--account::before { background: linear-gradient(180deg, #059669, #34d399); }
+.home-card-icon {
+  width: 3rem; height: 3rem; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: 12px; padding: .55rem;
+}
+.home-card--picks .home-card-icon   { background: #e0f2fe; color: #0284c7; }
+.home-card--scores .home-card-icon  { background: #ede9fe; color: #7c3aed; }
+.home-card--leaderboard .home-card-icon { background: #fef3c7; color: #d97706; }
+.home-card--account .home-card-icon { background: #d1fae5; color: #059669; }
+.home-card-icon svg { width: 100%; height: 100%; }
+.home-card-body { flex: 1; }
+.home-card-body h2 { margin: 0 0 .2rem; font-size: 1.1rem; }
+.home-card-body p { margin: 0; font-size: .88rem; color: var(--muted); line-height: 1.35; }
+.home-card-arrow { width: 1.2rem; height: 1.2rem; color: var(--muted); flex-shrink: 0; transition: transform .2s, color .2s; }
+.home-card:hover .home-card-arrow { transform: translateX(4px); color: var(--primary); }
+
+/* ═══════════════ My Scores page ═══════════════ */
+.score-summary-bar {
+  display: flex; justify-content: center; gap: 2rem; flex-wrap: wrap;
+  background: linear-gradient(135deg, var(--primary), #7c3aed);
+  border-radius: 14px; padding: 1.25rem 2rem; margin-bottom: 1.5rem; color: #fff;
+}
+.score-summary-item { text-align: center; }
+.score-summary-label { display: block; font-size: .78rem; opacity: .8; text-transform: uppercase; letter-spacing: .05em; }
+.score-summary-value { display: block; font-size: 1.6rem; font-weight: 700; line-height: 1.2; }
+.score-summary-total { font-size: 2rem; }
+
+.score-team-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; }
+.score-team-card {
+  background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+  overflow: hidden; transition: box-shadow .2s;
+}
+.score-team-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,.06); }
+.score-team-header {
+  display: flex; align-items: center; gap: .75rem; padding: 1rem 1.25rem;
+  border-bottom: 1px solid var(--border); background: var(--bg);
+}
+.score-team-flag .flag { width: 32px; height: auto; border-radius: 3px; }
+.score-team-header h3 { margin: 0; font-size: 1.05rem; }
+.score-team-pot { font-size: .78rem; color: var(--muted); }
+.score-team-total { margin-left: auto; font-size: 1.5rem; font-weight: 700; color: var(--primary); }
+.score-team-breakdown { padding: .75rem 1.25rem; }
+.score-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: .4rem 0; font-size: .92rem;
+}
+.score-row span { display: flex; align-items: center; gap: .35rem; }
+.score-row .icon { color: var(--muted); }
+.pts-positive { color: var(--success); font-weight: 600; }
+.pts-negative { color: var(--danger); font-weight: 600; }
+
+/* ═══════════════ Responsive ═══════════════ */
 @media (max-width: 768px) {
   .topbar .container { flex-wrap: wrap; gap: .5rem; }
-  .topbar nav { gap: .4rem; font-size: .9rem; }
+  .nav-toggle { display: block; }
+  .topbar nav { display: none; flex-direction: column; width: 100%; gap: .25rem; padding: .5rem 0; }
+  .topbar nav.open { display: flex; }
+  .topbar nav a { padding: .6rem .75rem; border-radius: 8px; }
+  .nav-admin-link { border-left: 0; margin-left: 0; padding-left: .75rem !important; border-top: 1px solid var(--border); margin-top: .25rem; padding-top: .65rem !important; }
+  .user { width: 100%; display: flex; justify-content: space-between; align-items: center; padding: .35rem 0; border-top: 1px solid var(--border); }
+  .home-welcome h1 { font-size: 1.4rem; }
+  .home-stats { gap: .75rem; }
+  .home-stat-card { padding: 1rem 1.25rem; min-width: 100px; }
+  .home-stat-value { font-size: 1.4rem; }
+  .home-nav-cards { grid-template-columns: 1fr; }
   .pick-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
   .match-card { flex-wrap: wrap; gap: .5rem; }
   .match-team { min-width: 100px; }
   .leaderboard-table { font-size: .82rem; }
   .leaderboard-table .team-cell { font-size: .78rem; }
+  .score-team-cards { grid-template-columns: 1fr; }
+  .score-summary-bar { gap: 1rem; padding: 1rem; }
+  .score-summary-value { font-size: 1.3rem; }
+  .score-summary-total { font-size: 1.5rem; }
 }
