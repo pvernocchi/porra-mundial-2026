@@ -116,6 +116,19 @@ final class MfaCredential
         ], ['id' => $id]);
     }
 
+    /**
+     * Find a WebAuthn credential by its base64url-encoded credential ID.
+     *
+     * @return array<string, mixed>|null
+     */
+    public function findByCredentialId(string $credentialId): ?array
+    {
+        return $this->db->fetch(
+            'SELECT * FROM {prefix:mfa_credentials} WHERE type = :t AND webauthn_credential_id = :cid LIMIT 1',
+            ['t' => 'webauthn', 'cid' => $credentialId]
+        );
+    }
+
     public function userHasType(int $userId, string $type): bool
     {
         $row = $this->db->fetch(
