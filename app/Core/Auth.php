@@ -147,13 +147,14 @@ final class Auth
 
     public function requireFreshMfa(int $maxAgeSeconds = 600): bool
     {
-        if (!$this->isAdmin()) {
+        $user = $this->user();
+        if ($user === null || $user->role !== 'admin') {
             return true;
         }
         if (!(bool)$this->app->settings()->get('security.mfa.fresh_required_for_admin', true)) {
             return true;
         }
-        if ((new MfaCredential($this->app->db()))->countForUser($this->user()->id) === 0) {
+        if ((new MfaCredential($this->app->db()))->countForUser($user->id) === 0) {
             return true; // user has no MFA, nothing to re-verify
         }
         $age = time() - $this->lastMfaAt();
