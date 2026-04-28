@@ -310,7 +310,7 @@ final class InstallController
 
         try {
             $cfg = (array)$this->app->config()->get('db', []);
-            $this->inst->runMigrations($cfg);
+            $this->inst->runPendingMigrations($cfg);
             $this->inst->writeInstalledLock($code);
             $this->app->audit()->log('upgrade.applied', $auth->user()?->id, [
                 'from' => $have, 'to' => $code,
