@@ -46,5 +46,4 @@ jobs:
             **/README.md
             **/INSTALL.md
             **/UPGRADE.md
-            **/composer.lock
             **/release/**
