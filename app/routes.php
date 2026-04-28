@@ -75,6 +75,12 @@ return static function (Application $app): Router {
         }
         return $next($req);
     };
+    $userManager = static function (Request $req, callable $next, Application $app): Response {
+        if (!$app->auth()->canManageUsers()) {
+            return (new Response())->html('<h1>403</h1><p>Acceso denegado.</p>', 403);
+        }
+        return $next($req);
+    };
 
     /* ---------- Account (any logged-in user) ---------- */
     $router->get('/account', static function (Request $r) use ($app): Response {
@@ -95,18 +101,18 @@ return static function (Application $app): Router {
     $router->post('/api/webauthn/login',                    fn(Request $r) => (new MfaController($app))->webauthnLogin($r));
 
     /* ---------- Admin ---------- */
-    $router->get('/admin',                                fn(Request $r) => (new AdminController($app))->dashboard($r), [$auth, $admin]);
+    $router->get('/admin',                                fn(Request $r) => (new AdminController($app))->dashboard($r), [$auth, $userManager]);
 
-    $router->get('/admin/users',                          fn(Request $r) => (new UserController($app))->index($r),                  [$auth, $admin]);
-    $router->get('/admin/users/invite',                   fn(Request $r) => (new UserController($app))->inviteForm($r),             [$auth, $admin]);
-    $router->post('/admin/users/invite',                  fn(Request $r) => (new UserController($app))->inviteSubmit($r),           [$auth, $admin]);
-    $router->post('/admin/users/invitations/{id}/resend', fn(Request $r, array $p) => (new UserController($app))->inviteResend($r, $p), [$auth, $admin]);
-    $router->post('/admin/users/invitations/{id}/revoke', fn(Request $r, array $p) => (new UserController($app))->inviteRevoke($r, $p), [$auth, $admin]);
-    $router->get('/admin/users/{id}',                     fn(Request $r, array $p) => (new UserController($app))->edit($r, $p),     [$auth, $admin]);
-    $router->post('/admin/users/{id}',                    fn(Request $r, array $p) => (new UserController($app))->update($r, $p),   [$auth, $admin]);
-    $router->post('/admin/users/{id}/password',           fn(Request $r, array $p) => (new UserController($app))->changePassword($r, $p), [$auth, $admin]);
-    $router->post('/admin/users/{id}/mfa-reset',          fn(Request $r, array $p) => (new UserController($app))->resetMfa($r, $p), [$auth, $admin]);
-    $router->post('/admin/users/{id}/delete',             fn(Request $r, array $p) => (new UserController($app))->delete($r, $p),   [$auth, $admin]);
+    $router->get('/admin/users',                          fn(Request $r) => (new UserController($app))->index($r),                  [$auth, $userManager]);
+    $router->get('/admin/users/invite',                   fn(Request $r) => (new UserController($app))->inviteForm($r),             [$auth, $userManager]);
+    $router->post('/admin/users/invite',                  fn(Request $r) => (new UserController($app))->inviteSubmit($r),           [$auth, $userManager]);
+    $router->post('/admin/users/invitations/{id}/resend', fn(Request $r, array $p) => (new UserController($app))->inviteResend($r, $p), [$auth, $userManager]);
+    $router->post('/admin/users/invitations/{id}/revoke', fn(Request $r, array $p) => (new UserController($app))->inviteRevoke($r, $p), [$auth, $userManager]);
+    $router->get('/admin/users/{id}',                     fn(Request $r, array $p) => (new UserController($app))->edit($r, $p),     [$auth, $userManager]);
+    $router->post('/admin/users/{id}',                    fn(Request $r, array $p) => (new UserController($app))->update($r, $p),   [$auth, $userManager]);
+    $router->post('/admin/users/{id}/password',           fn(Request $r, array $p) => (new UserController($app))->changePassword($r, $p), [$auth, $userManager]);
+    $router->post('/admin/users/{id}/mfa-reset',          fn(Request $r, array $p) => (new UserController($app))->resetMfa($r, $p), [$auth, $userManager]);
+    $router->post('/admin/users/{id}/delete',             fn(Request $r, array $p) => (new UserController($app))->delete($r, $p),   [$auth, $userManager]);
 
     $router->get('/admin/communications/smtp',  fn(Request $r) => (new CommunicationController($app))->smtp($r),       [$auth, $admin]);
     $router->post('/admin/communications/smtp', fn(Request $r) => (new CommunicationController($app))->smtpSubmit($r), [$auth, $admin]);

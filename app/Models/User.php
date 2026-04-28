@@ -107,7 +107,7 @@ final class User
             'full_name'     => $fullName,
             'email'         => strtolower($email),
             'password_hash' => Password::hash($plainPassword),
-            'role'          => $role === 'admin' ? 'admin' : 'user',
+            'role'          => in_array($role, ['admin', 'account_manager'], true) ? $role : 'user',
             'status'        => 'active',
             'mfa_enforced'  => 0,
             'created_at'    => $now,
@@ -119,7 +119,7 @@ final class User
     {
         $this->db->update('users', [
             'full_name'  => $fullName,
-            'role'       => $role === 'admin' ? 'admin' : 'user',
+            'role'       => in_array($role, ['admin', 'account_manager'], true) ? $role : 'user',
             'status'     => in_array($status, ['active', 'disabled'], true) ? $status : 'active',
             'updated_at' => gmdate('Y-m-d H:i:s'),
         ], ['id' => $id]);

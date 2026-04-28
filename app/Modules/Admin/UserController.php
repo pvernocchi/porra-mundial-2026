@@ -96,7 +96,9 @@ final class UserController
         $errors = [];
         if ($fullName === '') { $errors[] = 'El nombre es obligatorio.'; }
         if (!filter_var($email, FILTER_VALIDATE_EMAIL)) { $errors[] = 'Email inválido.'; }
-        if (!in_array($role, ['user', 'admin'], true)) { $role = 'user'; }
+        if (!in_array($role, ['user', 'admin', 'account_manager'], true)) { $role = 'user'; }
+        // Account managers cannot assign admin or account_manager roles.
+        if ($this->app->auth()->isAccountManager() && $role !== 'user') { $role = 'user'; }
         if ((new User($this->app->db()))->emailExists($email)) {
             $errors[] = 'Ya existe un usuario activo con ese email.';
         }
@@ -192,6 +194,16 @@ final class UserController
         $errors = [];
         if ($fullName === '') { $errors[] = 'El nombre es obligatorio.'; }
 
+        // Account managers cannot edit admin or other account_manager users.
+        $isAccountManager = $this->app->auth()->isAccountManager();
+        if ($isAccountManager && in_array($user->role, ['admin', 'account_manager'], true)) {
+            $errors[] = 'No tienes permiso para modificar este usuario.';
+        }
+        // Account managers cannot assign admin or account_manager roles.
+        if ($isAccountManager && in_array($role, ['admin', 'account_manager'], true)) {
+            $role = 'user';
+        }
+
         // Don't allow demoting the last active admin.
         if ($user->role === 'admin' && $role !== 'admin') {
             if ($userModel->adminCount() <= 1) {
@@ -204,8 +216,11 @@ final class UserController
         // Also forbid self-demotion / self-disable to avoid lockouts.
         $me = $this->app->auth()->user();
         if ($me !== null && $me->id === $user->id) {
-            if ($role !== 'admin') {
+            if ($me->role === 'admin' && $role !== 'admin') {
                 $errors[] = 'No puedes quitarte el rol de administrador a ti mismo.';
+            }
+            if ($me->role === 'account_manager' && $role !== 'account_manager') {
+                $errors[] = 'No puedes quitarte el rol de gestor de cuentas a ti mismo.';
             }
             if ($status === 'disabled') {
                 $errors[] = 'No puedes desactivar tu propia cuenta.';
@@ -240,6 +255,11 @@ final class UserController
         if ($user === null) {
             return (new Response())->html('<h1>404</h1>', 404);
         }
+        // Account managers cannot change passwords of admin or account_manager users.
+        if ($this->app->auth()->isAccountManager() && in_array($user->role, ['admin', 'account_manager'], true)) {
+            $this->app->session()->flash('admin_msg', 'No tienes permiso para modificar este usuario.');
+            return (new Response())->redirect($this->app->baseUrl() . '/admin/users/' . $id);
+        }
         $pw = (string)$req->input('password', '');
         $errors = Password::validate($pw, $this->app->path('data/common-passwords.txt'));
         if ($errors !== []) {
@@ -260,6 +280,14 @@ final class UserController
             return (new Response())->redirect($this->app->baseUrl() . '/admin/users');
         }
         $id = (int)($params['id'] ?? 0);
+        // Account managers cannot reset MFA for admin or account_manager users.
+        if ($this->app->auth()->isAccountManager()) {
+            $target = (new User($this->app->db()))->find($id);
+            if ($target !== null && in_array($target->role, ['admin', 'account_manager'], true)) {
+                $this->app->session()->flash('admin_msg', 'No tienes permiso para modificar este usuario.');
+                return (new Response())->redirect($this->app->baseUrl() . '/admin/users/' . $id);
+            }
+        }
         $count = (new MfaCredential($this->app->db()))->deleteAllForUser($id);
         $me = $this->app->auth()->user();
         $this->app->audit()->log('user.mfa_reset', $me?->id, ['target' => $id, 'count' => $count]);
@@ -280,6 +308,11 @@ final class UserController
             return (new Response())->html('<h1>404</h1>', 404);
         }
         $me = $this->app->auth()->user();
+        // Account managers cannot delete admin or account_manager users.
+        if ($this->app->auth()->isAccountManager() && in_array($user->role, ['admin', 'account_manager'], true)) {
+            $this->app->session()->flash('admin_msg', 'No tienes permiso para eliminar este usuario.');
+            return (new Response())->redirect($this->app->baseUrl() . '/admin/users/' . $id);
+        }
         if ($me !== null && $me->id === $user->id) {
             $this->app->session()->flash('admin_msg', 'No puedes eliminar tu propia cuenta.');
             return (new Response())->redirect($this->app->baseUrl() . '/admin/users/' . $id);

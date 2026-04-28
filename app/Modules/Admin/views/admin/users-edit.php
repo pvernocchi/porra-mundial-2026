@@ -28,7 +28,10 @@ $base = $e($app->baseUrl());
   <label>Rol
     <select name="role">
       <option value="user"  <?= $user->role === 'user'  ? 'selected' : '' ?>>Usuario</option>
-      <option value="admin" <?= $user->role === 'admin' ? 'selected' : '' ?>>Administrador</option>
+      <?php if ($app->auth()->isAdmin()): ?>
+        <option value="account_manager" <?= $user->role === 'account_manager' ? 'selected' : '' ?>>Gestor de cuentas</option>
+        <option value="admin" <?= $user->role === 'admin' ? 'selected' : '' ?>>Administrador</option>
+      <?php endif ?>
     </select>
   </label>
   <label>Estado

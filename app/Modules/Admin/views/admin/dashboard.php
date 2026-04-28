@@ -21,6 +21,7 @@ $base = $e($app->baseUrl());
     <p class="metric"><?= $e((string)count($pendingInvites)) ?></p>
     <a href="<?= $base ?>/admin/users#invitations">Ver →</a>
   </div>
+  <?php if ($app->auth()->isAdmin()): ?>
   <div class="card">
     <h3>SMTP</h3>
     <p><?= $app->mail()->isConfigured() ? '✅ Configurado' : '⚠️ No configurado' ?></p>
@@ -31,6 +32,7 @@ $base = $e($app->baseUrl());
     <p>Política MFA: <strong><?= $e((string)$app->settings()->get('security.mfa.policy', 'optional')) ?></strong></p>
     <a href="<?= $base ?>/admin/security">Ajustes →</a>
   </div>
+  <?php endif ?>
 </div>
 
 <h2>Eventos recientes</h2>

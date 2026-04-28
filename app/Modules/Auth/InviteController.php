@@ -91,7 +91,7 @@ final class InviteController
         $user = $userModel->find($userId);
         if ($user !== null) {
             $policy = $this->app->auth()->mfaPolicy();
-            if ($policy === 'all' || ($policy === 'admins' && $user->role === 'admin')) {
+            if ($policy === 'all' || ($policy === 'admins' && in_array($user->role, ['admin', 'account_manager'], true))) {
                 // Stash login state to require MFA enrollment immediately.
                 $this->app->session()->set('_pending_enroll_user_id', $user->id);
                 return (new Response())->redirect($this->app->baseUrl() . '/account/mfa/enroll');

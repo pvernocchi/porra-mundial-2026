@@ -44,6 +44,20 @@ final class Auth
         return $u !== null && $u->role === 'admin';
     }
 
+    public function isAccountManager(): bool
+    {
+        $u = $this->user();
+        return $u !== null && $u->role === 'account_manager';
+    }
+
+    /**
+     * True if the current user can manage user accounts (admin or account_manager).
+     */
+    public function canManageUsers(): bool
+    {
+        return $this->isAdmin() || $this->isAccountManager();
+    }
+
     public function loggedInAt(): int
     {
         return (int)$this->app->session()->get('_user_login_at', 0);
@@ -94,7 +108,7 @@ final class Auth
 
         // No MFA registered — but global policy may still require it.
         $policy = $this->mfaPolicy();
-        if ($policy === 'all' || ($policy === 'admins' && $user->role === 'admin')) {
+        if ($policy === 'all' || ($policy === 'admins' && in_array($user->role, ['admin', 'account_manager'], true))) {
             // Force the user to register MFA before fully logging in.
             $this->app->session()->set('_pending_enroll_user_id', $user->id);
             $this->app->audit()->log('login.password_ok_enrollment_required', $user->id);
@@ -148,7 +162,7 @@ final class Auth
     public function requireFreshMfa(int $maxAgeSeconds = 600): bool
     {
         $user = $this->user();
-        if ($user === null || $user->role !== 'admin') {
+        if ($user === null || !in_array($user->role, ['admin', 'account_manager'], true)) {
             return true;
         }
         if (!(bool)$this->app->settings()->get('security.mfa.fresh_required_for_admin', true)) {

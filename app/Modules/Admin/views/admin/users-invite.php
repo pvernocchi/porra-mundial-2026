@@ -21,8 +21,11 @@ $base = $e($app->baseUrl());
   <label>Email <input type="email" name="email" value="<?= $e($email) ?>" required></label>
   <label>Rol
     <select name="role">
-      <option value="user"  <?= $role !== 'admin' ? 'selected' : '' ?>>Usuario</option>
-      <option value="admin" <?= $role === 'admin' ? 'selected' : '' ?>>Administrador</option>
+      <option value="user"  <?= !in_array($role, ['admin', 'account_manager'], true) ? 'selected' : '' ?>>Usuario</option>
+      <?php if ($app->auth()->isAdmin()): ?>
+        <option value="account_manager" <?= $role === 'account_manager' ? 'selected' : '' ?>>Gestor de cuentas</option>
+        <option value="admin" <?= $role === 'admin' ? 'selected' : '' ?>>Administrador</option>
+      <?php endif ?>
     </select>
   </label>
   <p class="muted"><small>Se enviará un email con un enlace válido durante 48 horas.</small></p>
