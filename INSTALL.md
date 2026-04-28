@@ -5,7 +5,7 @@ Sólo necesitas un cliente FTP y el panel cPanel del hosting.
 
 ## Requisitos
 
-- PHP **8.3** o superior con las extensiones `pdo_mysql`, `openssl`, `mbstring`, `curl` y `sodium`.
+- PHP **8.1** o superior con las extensiones `pdo_mysql`, `openssl`, `mbstring`, `curl` y `sodium`.
 - MySQL 5.7+ / MariaDB 10.3+.
 - Apache con `mod_rewrite` (Namecheap lo trae activado por defecto).
 
