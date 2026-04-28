@@ -1,0 +1,7 @@
+-- 0002_add_account_manager_role.sql
+--
+-- No schema change needed: the `role` column is VARCHAR(20) and already
+-- accepts any string value. This migration serves as documentation that
+-- 'account_manager' is now a valid role alongside 'user' and 'admin'.
+--
+-- The application code enforces which role values are accepted.

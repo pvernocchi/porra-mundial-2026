@@ -42,7 +42,7 @@ final class Invitation
         $id = (int)$this->db->insert('invitations', [
             'email'      => strtolower($email),
             'full_name'  => $fullName,
-            'role'       => $role === 'admin' ? 'admin' : 'user',
+            'role'       => in_array($role, ['admin', 'account_manager'], true) ? $role : 'user',
             'token_hash' => self::hashToken($token),
             'created_by' => $createdBy,
             'created_at' => $now,

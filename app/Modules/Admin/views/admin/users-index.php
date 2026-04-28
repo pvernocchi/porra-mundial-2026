@@ -22,6 +22,7 @@ $totalPages = max(1, (int)ceil($total / $perPage));
   <select name="role">
     <option value="">— Rol —</option>
     <option value="user"  <?= $role === 'user'  ? 'selected' : '' ?>>user</option>
+    <option value="account_manager" <?= $role === 'account_manager' ? 'selected' : '' ?>>account_manager</option>
     <option value="admin" <?= $role === 'admin' ? 'selected' : '' ?>>admin</option>
   </select>
   <select name="status">
