@@ -163,7 +163,8 @@ final class Application
         $scheme = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https' : 'http';
         $host   = $_SERVER['HTTP_HOST'] ?? 'localhost';
         // Sanitise the Host header to prevent header-injection attacks.
-        $host = preg_replace('/[^a-zA-Z0-9.\-:\[\]]/', '', (string)$host);
+        // Allow alphanumerics, dots, hyphens, colons (for port), and brackets (for IPv6 like [::1]).
+        $host = preg_replace('/[^a-zA-Z0-9.\-:]/', '', (string)$host);
         return $scheme . '://' . $host;
     }
 }
