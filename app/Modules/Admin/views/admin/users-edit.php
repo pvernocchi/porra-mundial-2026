@@ -7,7 +7,7 @@
 /** @var array<int, array<string, mixed>> $audit */
 /** @var ?string $msg */
 /** @var array<int, string> $errors */
-$view->extend('layout', ['title' => 'Editar: ' . $user->fullName, 'flash' => $msg ?? null]);
+$view->extend('admin.layout', ['title' => 'Editar: ' . $user->fullName, 'flash' => $msg ?? null]);
 $view->section('content');
 $base = $e($app->baseUrl());
 ?>

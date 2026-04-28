@@ -12,7 +12,7 @@
 /** @var string $status */
 /** @var array<int, array<string, mixed>> $invitations */
 /** @var ?string $msg */
-$view->extend('layout', ['title' => 'Usuarios', 'flash' => $msg ?? null]);
+$view->extend('admin.layout', ['title' => 'Usuarios', 'flash' => $msg ?? null]);
 $view->section('content');
 $base = $e($app->baseUrl());
 $totalPages = max(1, (int)ceil($total / $perPage));

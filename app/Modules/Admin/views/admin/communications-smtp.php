@@ -5,7 +5,7 @@
 /** @var array<string, mixed> $cfg */
 /** @var ?string $msg */
 /** @var array<int, string> $errors */
-$view->extend('layout', ['title' => 'Comunicaciones · SMTP', 'flash' => $msg ?? null]);
+$view->extend('admin.layout', ['title' => 'Comunicaciones · SMTP', 'flash' => $msg ?? null]);
 $view->section('content');
 $base = $e($app->baseUrl());
 ?>

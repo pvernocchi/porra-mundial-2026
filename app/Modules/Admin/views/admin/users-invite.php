@@ -6,7 +6,7 @@
 /** @var string $fullName */
 /** @var string $email */
 /** @var string $role */
-$view->extend('layout', ['title' => 'Invitar usuario']);
+$view->extend('admin.layout', ['title' => 'Invitar usuario']);
 $view->section('content');
 $base = $e($app->baseUrl());
 ?>
