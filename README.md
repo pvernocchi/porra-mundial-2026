@@ -176,7 +176,7 @@ Configura en **Settings → Secrets and variables → Actions**:
 | 5 | ✉️ Comunicaciones SMTP (PHPMailer + spool) | ✅ Completado |
 | 6 | 👥 Admin · Usuarios (CRUD, MFA reset, soft delete) | ✅ Completado |
 | 7 | 📱 MFA TOTP (QR, verificación, recovery codes) | ✅ Completado |
-| 8 | 🔑 MFA WebAuthn (FIDO2, Yubikey, Windows Hello) | ⚠️ Stub |
+| 8 | 🔑 MFA WebAuthn (FIDO2, Yubikey, Windows Hello) | ✅ Completado |
 | 9 | 🛡️ Seguridad (captcha, política MFA, bloqueo, expiración) | ✅ Completado |
 | 10 | 📦 Empaquetado, release y documentación | ✅ Completado |
 
