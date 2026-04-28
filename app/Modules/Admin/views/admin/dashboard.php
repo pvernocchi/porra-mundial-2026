@@ -32,6 +32,11 @@ $base = $e($app->baseUrl());
     <p>Política MFA: <strong><?= $e((string)$app->settings()->get('security.mfa.policy', 'optional')) ?></strong></p>
     <a href="<?= $base ?>/admin/security">Ajustes →</a>
   </div>
+  <div class="card">
+    <h3>Actualización</h3>
+    <p>v<?= $e($app->version()) ?></p>
+    <a href="<?= $base ?>/install/upgrade/force">Forzar actualización →</a>
+  </div>
   <?php endif ?>
 </div>
 
