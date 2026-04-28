@@ -62,14 +62,14 @@ final class SmtpClient
                 $this->cmd(base64_encode($this->password), 235);
             }
 
-            $this->cmd('MAIL FROM:<' . $fromEmail . '>', 250);
-            $this->cmd('RCPT TO:<' . $to . '>', 250);
+            $this->cmd('MAIL FROM:<' . self::sanitizeEmail($fromEmail) . '>', 250);
+            $this->cmd('RCPT TO:<' . self::sanitizeEmail($to) . '>', 250);
             $this->cmd('DATA', 354);
 
             $boundary = 'b' . bin2hex(random_bytes(8));
             $headers  = [
-                'From: ' . $this->encodeHeader($fromName) . ' <' . $fromEmail . '>',
-                'To: <' . $to . '>',
+                'From: ' . $this->encodeHeader($fromName) . ' <' . self::sanitizeEmail($fromEmail) . '>',
+                'To: <' . self::sanitizeEmail($to) . '>',
                 'Subject: ' . $this->encodeHeader($subject),
                 'MIME-Version: 1.0',
                 'Date: ' . gmdate('r'),
@@ -77,7 +77,7 @@ final class SmtpClient
                 'Content-Type: multipart/alternative; boundary="' . $boundary . '"',
             ];
             if ($replyTo !== null && $replyTo !== '') {
-                $headers[] = 'Reply-To: <' . $replyTo . '>';
+                $headers[] = 'Reply-To: <' . self::sanitizeEmail($replyTo) . '>';
             }
             $body = "--{$boundary}\r\n"
                 . "Content-Type: text/plain; charset=UTF-8\r\n"
@@ -171,5 +171,13 @@ final class SmtpClient
     {
         $body = preg_replace("/\r\n|\r|\n/", "\r\n", $body) ?? $body;
         return preg_replace("/^\\./m", "..", $body) ?? $body;
+    }
+
+    /**
+     * Strip characters that could allow SMTP command injection.
+     */
+    private static function sanitizeEmail(string $email): string
+    {
+        return str_replace(["\r", "\n", "\0"], '', $email);
     }
 }

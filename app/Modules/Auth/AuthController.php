@@ -85,7 +85,7 @@ final class AuthController
         }
 
         // ok
-        return (new Response())->redirect($next !== '' ? $next : ($this->app->baseUrl() . '/admin'));
+        return (new Response())->redirect($this->safeRedirect($next));
     }
 
     public function showMfa(Request $req): Response
@@ -168,12 +168,30 @@ final class AuthController
         }
 
         $this->app->auth()->finaliseLogin($user, mfaUsed: true);
-        return (new Response())->redirect($next !== '' ? $next : ($this->app->baseUrl() . '/admin'));
+        return (new Response())->redirect($this->safeRedirect($next));
     }
 
     public function logout(Request $req): Response
     {
         $this->app->auth()->logout();
         return (new Response())->redirect($this->app->baseUrl() . '/login');
+    }
+
+    /**
+     * Validate a redirect target to prevent open-redirect attacks.
+     * Only relative paths (starting with /) are accepted; anything else
+     * (including protocol-relative URLs like //evil.com) falls back to /admin.
+     */
+    private function safeRedirect(string $url): string
+    {
+        $default = $this->app->baseUrl() . '/admin';
+        if ($url === '') {
+            return $default;
+        }
+        // Must start with a single slash and not be a protocol-relative URL.
+        if (!str_starts_with($url, '/') || str_starts_with($url, '//')) {
+            return $default;
+        }
+        return $url;
     }
 }

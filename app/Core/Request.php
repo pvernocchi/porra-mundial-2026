@@ -39,7 +39,7 @@ final class Request
         array $files = []
     ) {
         $this->get     = array_map(static fn($v) => is_array($v) ? $v : (string)$v, $get);
-        $this->post    = $post;
+        $this->post    = array_map(static fn($v) => is_array($v) ? $v : (string)$v, $post);
         $this->server  = array_map(static fn($v) => (string)$v, $server);
         $this->cookies = array_map(static fn($v) => (string)$v, $cookies);
         $this->files   = $files;

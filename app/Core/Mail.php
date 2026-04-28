@@ -183,8 +183,10 @@ final class Mail
         if (!is_dir($dir)) {
             @mkdir($dir, 0775, true);
         }
-        $filename = $dir . '/' . gmdate('Ymd_His') . '_' . substr(sha1($to . $subject . microtime(true)), 0, 8) . '.eml';
-        $message = "To: {$to}\r\nSubject: {$subject}\r\nDate: " . gmdate('r') . "\r\n"
+        $filename = $dir . '/' . gmdate('Ymd_His') . '_' . bin2hex(random_bytes(8)) . '.eml';
+        $safeTo      = str_replace(["\r", "\n", "\0"], '', $to);
+        $safeSubject = str_replace(["\r", "\n", "\0"], '', $subject);
+        $message = "To: {$safeTo}\r\nSubject: {$safeSubject}\r\nDate: " . gmdate('r') . "\r\n"
             . "Content-Type: text/html; charset=utf-8\r\n\r\n"
             . $htmlBody
             . "\r\n\r\n----\r\n" . ($textBody ?? strip_tags($htmlBody));

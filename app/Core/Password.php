@@ -72,7 +72,8 @@ final class Password
         $needle = strtolower($password);
         $fh = @fopen($file, 'r');
         if ($fh === false) {
-            return false;
+            // Fail closed: treat password as common when the list is unreadable.
+            return true;
         }
         try {
             while (($line = fgets($fh)) !== false) {
