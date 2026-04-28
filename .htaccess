@@ -1,0 +1,32 @@
+# Root .htaccess
+# This file allows the application to live entirely inside public_html
+# while still serving the /public folder as document root.
+#
+# If your hosting provider lets you set the docroot to /public directly
+# (most cPanel installs allow this through "Domains" -> "Document Root"),
+# point the docroot at /public and ignore this file.
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Force HTTPS if a forced-https flag is present (set by Security module)
+    # This is intentionally commented out so cleartext access works on first
+    # install; the Security module flips it via a marker file when the admin
+    # enables it.
+    # RewriteCond %{HTTPS} off
+    # RewriteRule ^ https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+
+    # Redirect everything to /public/...
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
+
+# Block direct access to sensitive folders just in case the rewrite above
+# is disabled or misconfigured.
+<FilesMatch "^(composer\.(json|lock)|VERSION|\.env|\.gitignore|\.htaccess)$">
+    Require all denied
+</FilesMatch>
+
+<IfModule mod_dir.c>
+    DirectoryIndex public/index.php index.php
+</IfModule>
