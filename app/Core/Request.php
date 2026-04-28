@@ -89,7 +89,7 @@ final class Request
 
     public function ip(): string
     {
-        return (string)($this->server['REMOTE_ADDR'] ?? '0.0.0.0');
+        return self::resolveClientIp($this->server);
     }
 
     public function userAgent(): string
@@ -111,6 +111,42 @@ final class Request
     {
         $key = 'HTTP_' . strtoupper(str_replace('-', '_', $name));
         return (string)($this->server[$key] ?? '');
+    }
+
+    /**
+     * @param array<string, mixed> $server
+     */
+    public static function resolveClientIp(array $server): string
+    {
+        $cfIp = self::firstValidIp($server['HTTP_CF_CONNECTING_IP'] ?? null);
+        if ($cfIp !== null) {
+            return $cfIp;
+        }
+
+        $xff = (string)($server['HTTP_X_FORWARDED_FOR'] ?? '');
+        if ($xff !== '') {
+            foreach (explode(',', $xff) as $part) {
+                $ip = self::firstValidIp($part);
+                if ($ip !== null) {
+                    return $ip;
+                }
+            }
+        }
+
+        $remote = self::firstValidIp($server['REMOTE_ADDR'] ?? null);
+        return $remote ?? '0.0.0.0';
+    }
+
+    private static function firstValidIp(mixed $value): ?string
+    {
+        if (!is_scalar($value)) {
+            return null;
+        }
+        $ip = trim((string)$value);
+        if ($ip === '') {
+            return null;
+        }
+        return filter_var($ip, FILTER_VALIDATE_IP) !== false ? $ip : null;
     }
 
     private static function normalisePath(string $path, string $script): string
