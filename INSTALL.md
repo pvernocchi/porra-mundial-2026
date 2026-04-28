@@ -68,3 +68,4 @@ No es estrictamente necesario (`/install` se autobloquea), pero por defensa en p
 - **Página en blanco**: mira `storage/logs/app.log`. Si está vacío, comprueba los logs de error de PHP en cPanel.
 - **`Class "PDO" not found`**: la extensión `pdo_mysql` no está habilitada — pídele al hosting que la active.
 - **El QR de TOTP no aparece**: el QR se genera con un servicio externo (api.qrserver.com). Si tu hosting bloquea peticiones salientes, usa el secreto en texto que aparece debajo del QR.
+- **IPs inestables con Cloudflare (rate limit/captcha/auditoría)**: la app prioriza `CF-Connecting-IP` y luego `X-Forwarded-For` para identificar al cliente real detrás del proxy.

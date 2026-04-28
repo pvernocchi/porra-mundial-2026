@@ -22,7 +22,7 @@ final class Audit
             $this->db->insert('audit_log', [
                 'user_id'    => $userId,
                 'event'      => $event,
-                'ip'         => $ip ?? ($_SERVER['REMOTE_ADDR'] ?? null),
+                'ip'         => $ip ?? Request::resolveClientIp($_SERVER),
                 'ua'         => mb_substr((string)($ua ?? ($_SERVER['HTTP_USER_AGENT'] ?? '')), 0, 255),
                 'data'       => json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES) ?: '{}',
                 'created_at' => gmdate('Y-m-d H:i:s'),
