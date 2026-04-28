@@ -16,6 +16,51 @@ final class GameController
     public function __construct(private Application $app) {}
 
     /**
+     * Homepage dashboard for regular (non-admin) users.
+     */
+    public function home(Request $req): Response
+    {
+        $user = $this->app->auth()->user();
+        if ($user === null) {
+            return (new Response())->redirect($this->app->baseUrl() . '/login');
+        }
+
+        $pickModel  = new Pick($this->app->db());
+        $scoreModel = new Score($this->app->db());
+
+        $picks      = $pickModel->forUser($user->id);
+        $picksCount = count($picks);
+        $breakdown  = $scoreModel->userScoreBreakdown($user->id);
+
+        return (new Response())->html($this->app->view()->render('game.home', [
+            'user'        => $user,
+            'picksCount'  => $picksCount,
+            'totalScore'  => $breakdown['total'],
+            'rank'        => $breakdown['rank'],
+            'totalPlayers'=> $breakdown['total_players'],
+        ]));
+    }
+
+    /**
+     * My scores page: detailed breakdown per team.
+     */
+    public function myScores(Request $req): Response
+    {
+        $user = $this->app->auth()->user();
+        if ($user === null) {
+            return (new Response())->redirect($this->app->baseUrl() . '/login');
+        }
+
+        $scoreModel = new Score($this->app->db());
+        $breakdown  = $scoreModel->userScoreBreakdown($user->id);
+
+        return (new Response())->html($this->app->view()->render('game.my-scores', [
+            'user'      => $user,
+            'breakdown' => $breakdown,
+        ]));
+    }
+
+    /**
      * Show the pick form (select 1 team per pot).
      */
     public function picks(Request $req): Response

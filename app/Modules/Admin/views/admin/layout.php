@@ -17,7 +17,7 @@ $title = $title ?? (string)$app->config()->get('site.name', 'Porra');
 <body class="admin">
 <header class="topbar">
   <div class="container">
-    <a class="brand" href="<?= $base ?>/admin"><?= $e((string)$app->config()->get('site.name', 'Porra')) ?></a>
+    <a class="brand" href="<?= $base ?>/home"><?= $e((string)$app->config()->get('site.name', 'Porra')) ?></a>
     <nav>
       <a href="<?= $base ?>/admin">Inicio</a>
       <a href="<?= $base ?>/admin/users">Usuarios</a>
