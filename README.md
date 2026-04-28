@@ -77,6 +77,7 @@ porra-mundial-2026/
 │   │   └── Install/           # Asistente de instalación
 │   ├── bootstrap.php
 │   └── routes.php
+├── 📂 bin/                    # Scripts CLI (build, upgrade)
 ├── 📂 config/                 # Configuración (generada por el instalador)
 ├── 📂 database/               # Migraciones SQL
 ├── 📂 public/                 # Document root del servidor web
@@ -131,7 +132,10 @@ pdo_mysql · openssl · mbstring · curl · sodium
 ### 🔄 Actualización
 
 Sube la nueva release por FTP sobre la instalación existente.  
-Las migraciones pendientes se aplican automáticamente desde el navegador.
+Las migraciones pendientes se detectan y aplican automáticamente:
+
+- **🌐 Desde el navegador** — al acceder al sitio, redirige a `/install/upgrade` donde un admin confirma la actualización.
+- **💻 Desde la línea de comandos** — ejecuta `php bin/upgrade.php` (o `php bin/upgrade.php --force` para modo no interactivo).
 
 > 📚 Detalles en [`docs/UPGRADE.md`](docs/UPGRADE.md)
 

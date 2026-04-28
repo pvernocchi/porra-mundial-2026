@@ -53,7 +53,7 @@ $lastMigration   = $inst->lastAppliedMigration();
 $latestMigration = $inst->latestMigrationVersion();
 
 $hasVersionBump      = version_compare($codeVersion, $installedVersion, '>');
-$hasPendingMigrations = $latestMigration > $lastMigration;
+$hasPendingMigrations = (int)$latestMigration > (int)$lastMigration;
 
 if (!$hasVersionBump && !$hasPendingMigrations) {
     info("✓ La aplicación está al día (versión {$installedVersion}, última migración {$lastMigration}).");
@@ -83,7 +83,7 @@ if ($hasPendingMigrations) {
     $pending  = [];
     foreach ($allFiles as $file) {
         $prefix = explode('_', basename($file, '.sql'))[0] ?? '0000';
-        if ($prefix > $lastMigration) {
+        if ((int)$prefix > (int)$lastMigration) {
             $pending[] = basename($file);
         }
     }

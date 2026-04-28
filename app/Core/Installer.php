@@ -112,7 +112,7 @@ final class Installer
 
         foreach ($this->migrationFiles() as $file) {
             $prefix = explode('_', basename($file, '.sql'))[0] ?? '0000';
-            if ($prefix <= $lastApplied) {
+            if ((int)$prefix <= (int)$lastApplied) {
                 continue;
             }
             $this->executeMigrationFile($file, $db);
