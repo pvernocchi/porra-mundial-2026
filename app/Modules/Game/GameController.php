@@ -27,10 +27,24 @@ final class GameController
 
         $pickModel  = new Pick($this->app->db());
         $scoreModel = new Score($this->app->db());
+        $teamModel  = new Team($this->app->db());
 
         $picks      = $pickModel->forUser($user->id);
         $picksCount = count($picks);
         $breakdown  = $scoreModel->userScoreBreakdown($user->id);
+        
+        // Get team details for user's picks
+        $pickedTeams = [];
+        foreach ($picks as $pick) {
+            $team = $teamModel->find($pick->teamId);
+            if ($team !== null) {
+                $pickedTeams[] = [
+                    'id'   => $team->id,
+                    'name' => $team->name,
+                    'pot'  => $team->pot,
+                ];
+            }
+        }
 
         return (new Response())->html($this->app->view()->render('game.home', [
             'user'        => $user,
@@ -38,6 +52,7 @@ final class GameController
             'totalScore'  => $breakdown['total'],
             'rank'        => $breakdown['rank'],
             'totalPlayers'=> $breakdown['total_players'],
+            'pickedTeams' => $pickedTeams,
         ]));
     }
 

@@ -17,7 +17,10 @@ $title = $title ?? (string)$app->config()->get('site.name', 'Porra');
 <body class="admin">
 <header class="topbar">
   <div class="container">
-    <a class="brand" href="<?= $base ?>/home"><?= $e((string)$app->config()->get('site.name', 'Porra')) ?></a>
+    <a class="brand" href="<?= $base ?>/home">
+      <svg class="brand-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 2a14 14 0 0 1 0 20"/><path d="M12 2a14 14 0 0 0 0 20"/><path d="M2 12h20"/></svg>
+      <?= $e((string)$app->config()->get('site.name', 'Porra')) ?>
+    </a>
     <nav>
       <a href="<?= $base ?>/admin">Inicio</a>
       <a href="<?= $base ?>/admin/users">Usuarios</a>
