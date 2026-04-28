@@ -1,10 +1,10 @@
-name: Deploy FTP
+name: Deploy FTP (On-demand)
 
 on:
   workflow_dispatch:
     inputs:
       ref:
-        description: "Branch, tag o SHA a desplegar"
+        description: "Branch, tag o SHA a desplegar (ejecución manual)"
         required: false
         default: "main"
 

@@ -41,9 +41,9 @@ Aplicación web de porra para el mundial 2026, diseñada para ser **reutilizable
 
 Ver [`INSTALL.md`](INSTALL.md) para una guía paso a paso (incluye Namecheap).
 
-## Despliegue automático por FTP (GitHub Actions)
+## Despliegue FTP manual (on-demand) con GitHub Actions
 
-Se añadió el workflow `.github/workflows/deploy-ftp.yml` para subir el proyecto desde GitHub al hosting por FTP.
+Se añadió el workflow `.github/workflows/deploy-ftp.yml` para subir el proyecto desde GitHub al hosting por FTP/FTPS cuando lo ejecutes manualmente.
 
 ### Secretos necesarios en GitHub
 
@@ -57,7 +57,7 @@ Configura estos secretos en **Settings → Secrets and variables → Actions**:
 
 ### Cómo ejecutarlo
 
-1. Ve a **Actions** → **Deploy FTP**.
+1. Ve a **Actions** → **Deploy FTP (On-demand)**.
 2. Pulsa **Run workflow**.
 3. Opcionalmente indica `ref` (branch/tag/SHA); por defecto usa `main`.
 
