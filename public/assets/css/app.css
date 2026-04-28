@@ -1,17 +1,22 @@
-/* Porra Mundial 2026 — minimal stylesheet (no external CSS frameworks).
-   Designed to be readable on mobile and feel familiar to wp-admin. */
+/* Porra Mundial 2026 — Microsoft Fluent Design inspired stylesheet.
+   Designed for internal Microsoft employees with modern, professional UI. */
 :root {
-  --bg: #f6f7f9;
-  --surface: #fff;
-  --text: #222;
-  --muted: #6b7280;
-  --primary: #1f6feb;
-  --primary-hover: #1a5dc8;
-  --danger: #c0392b;
-  --warning: #b78103;
-  --info: #1f6feb;
-  --success: #1f7a3a;
-  --border: #e5e7eb;
+  /* Microsoft Fluent Design System colors */
+  --bg: #f3f2f1;
+  --surface: #ffffff;
+  --text: #323130;
+  --muted: #605e5c;
+  --primary: #0078d4;
+  --primary-hover: #106ebe;
+  --primary-light: #deecf9;
+  --danger: #d13438;
+  --warning: #ffb900;
+  --info: #0078d4;
+  --success: #107c10;
+  --border: #edebe9;
+  --shadow-sm: 0 1.6px 3.6px rgba(0,0,0,.05), 0 0.3px 0.9px rgba(0,0,0,.04);
+  --shadow-md: 0 3.2px 7.2px rgba(0,0,0,.08), 0 0.6px 1.8px rgba(0,0,0,.06);
+  --shadow-lg: 0 6.4px 14.4px rgba(0,0,0,.11), 0 1.2px 3.6px rgba(0,0,0,.09);
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
@@ -213,50 +218,79 @@ fieldset legend {
 .home-stats { display: flex; justify-content: center; gap: 1.5rem; margin: 1.5rem 0 2.5rem; flex-wrap: wrap; }
 .home-stat-card {
   display: flex; flex-direction: column; align-items: center;
-  background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
   padding: 1.25rem 2rem; min-width: 140px;
-  transition: box-shadow .2s, transform .2s;
+  transition: all .15s cubic-bezier(.4,0,.2,1);
+  box-shadow: var(--shadow-sm);
 }
-.home-stat-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,.07); transform: translateY(-2px); }
+.home-stat-card:hover { 
+  box-shadow: var(--shadow-md); 
+  transform: translateY(-2px);
+  border-color: var(--primary);
+}
 .home-stat-icon { width: 1.6rem; height: 1.6rem; color: var(--primary); margin-bottom: .4rem; }
 .home-stat-value { font-size: 1.8rem; font-weight: 700; color: var(--text); line-height: 1.1; }
 .home-stat-label { font-size: .82rem; color: var(--muted); margin-top: .15rem; }
 
 /* Navigation cards */
-.home-nav-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem; margin-bottom: 2rem; }
+.home-nav-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.25rem; margin-bottom: 2rem; }
 .home-card {
   display: flex; align-items: center; gap: 1rem;
-  background: var(--surface); border: 1px solid var(--border); border-radius: 14px;
-  padding: 1.25rem 1.5rem;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+  padding: 1.5rem 1.75rem;
   text-decoration: none; color: var(--text);
-  transition: box-shadow .25s, transform .25s, border-color .25s;
+  transition: all .2s cubic-bezier(.4,0,.2,1);
   position: relative; overflow: hidden;
+  box-shadow: var(--shadow-sm);
 }
 .home-card::before {
-  content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; border-radius: 14px 0 0 14px;
-  transition: width .25s;
+  content: ''; position: absolute; top: 0; left: 0; width: 4px; height: 100%; 
+  transition: width .2s;
 }
-.home-card:hover { box-shadow: 0 8px 30px rgba(0,0,0,.08); transform: translateY(-3px); }
-.home-card:hover::before { width: 5px; }
-.home-card--picks::before   { background: linear-gradient(180deg, #0284c7, #38bdf8); }
-.home-card--scores::before  { background: linear-gradient(180deg, #7c3aed, #a78bfa); }
-.home-card--leaderboard::before { background: linear-gradient(180deg, #d97706, #fbbf24); }
-.home-card--account::before { background: linear-gradient(180deg, #059669, #34d399); }
+.home-card:hover { 
+  box-shadow: var(--shadow-lg); 
+  transform: translateY(-4px);
+  border-color: var(--primary);
+}
+.home-card:hover::before { width: 6px; }
+.home-card--picks::before   { background: #0078d4; }
+.home-card--scores::before  { background: #5c2d91; }
+.home-card--leaderboard::before { background: #ca5010; }
+.home-card--account::before { background: #107c10; }
+.home-card--admin::before { background: #d13438; }
 .home-card-icon {
-  width: 3rem; height: 3rem; flex-shrink: 0;
+  width: 3.5rem; height: 3.5rem; flex-shrink: 0;
   display: flex; align-items: center; justify-content: center;
-  border-radius: 12px; padding: .55rem;
+  border-radius: 8px; padding: .7rem;
 }
-.home-card--picks .home-card-icon   { background: #e0f2fe; color: #0284c7; }
-.home-card--scores .home-card-icon  { background: #ede9fe; color: #7c3aed; }
-.home-card--leaderboard .home-card-icon { background: #fef3c7; color: #d97706; }
-.home-card--account .home-card-icon { background: #d1fae5; color: #059669; }
+.home-card--picks .home-card-icon   { background: #deecf9; color: #0078d4; }
+.home-card--scores .home-card-icon  { background: #e6d9f2; color: #5c2d91; }
+.home-card--leaderboard .home-card-icon { background: #fce6d2; color: #ca5010; }
+.home-card--account .home-card-icon { background: #dff6dd; color: #107c10; }
+.home-card--admin .home-card-icon { background: #fde7e9; color: #d13438; }
 .home-card-icon svg { width: 100%; height: 100%; }
 .home-card-body { flex: 1; }
-.home-card-body h2 { margin: 0 0 .2rem; font-size: 1.1rem; }
-.home-card-body p { margin: 0; font-size: .88rem; color: var(--muted); line-height: 1.35; }
-.home-card-arrow { width: 1.2rem; height: 1.2rem; color: var(--muted); flex-shrink: 0; transition: transform .2s, color .2s; }
-.home-card:hover .home-card-arrow { transform: translateX(4px); color: var(--primary); }
+.home-card-body h2 { margin: 0 0 .3rem; font-size: 1.15rem; font-weight: 600; }
+.home-card-body p { margin: 0; font-size: .9rem; color: var(--muted); line-height: 1.4; }
+.home-card-arrow { width: 1.3rem; height: 1.3rem; color: var(--muted); flex-shrink: 0; transition: all .2s; }
+.home-card:hover .home-card-arrow { transform: translateX(5px); color: var(--primary); }
+
+/* Teams display with flags */
+.home-teams-section { margin: 2rem 0; }
+.home-teams-title { font-size: 1.1rem; font-weight: 600; color: var(--text); margin-bottom: .75rem; display: flex; align-items: center; gap: .5rem; }
+.home-teams-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: .75rem; }
+.home-team-card {
+  display: flex; align-items: center; gap: .6rem;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 6px;
+  padding: .75rem 1rem;
+  transition: all .15s cubic-bezier(.4,0,.2,1);
+  box-shadow: var(--shadow-sm);
+}
+.home-team-card:hover { box-shadow: var(--shadow-md); transform: translateY(-1px); }
+.home-team-card .flag { width: 28px; height: auto; border-radius: 2px; }
+.home-team-card .team-info { flex: 1; min-width: 0; }
+.home-team-card .team-name { font-size: .88rem; font-weight: 500; color: var(--text); margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.home-team-card .team-pot { font-size: .7rem; color: var(--muted); margin: 0; }
 
 /* ═══════════════ My Scores page ═══════════════ */
 .score-summary-bar {
