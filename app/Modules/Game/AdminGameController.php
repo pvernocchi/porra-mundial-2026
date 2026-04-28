@@ -33,27 +33,27 @@ final class AdminGameController
      */
     public function createMatch(Request $req): Response
     {
-        if (!$this->app->csrf()->validate($req->post('_token', ''))) {
+        if (!$this->app->csrf()->valid($req->input('_token', ''))) {
             return (new Response())->redirect($this->app->baseUrl() . '/admin/game/matches');
         }
 
         $matchModel = new GameMatch($this->app->db());
         $matchModel->create([
-            'phase'               => $req->post('phase', 'group'),
-            'match_date'          => $req->post('match_date', '') ?: null,
-            'home_team_id'        => (int)$req->post('home_team_id', '0'),
-            'away_team_id'        => (int)$req->post('away_team_id', '0'),
-            'home_goals'          => $req->post('home_goals', '') !== '' ? (int)$req->post('home_goals', '0') : null,
-            'away_goals'          => $req->post('away_goals', '') !== '' ? (int)$req->post('away_goals', '0') : null,
-            'home_yellows'        => (int)$req->post('home_yellows', '0'),
-            'away_yellows'        => (int)$req->post('away_yellows', '0'),
-            'home_double_yellows' => (int)$req->post('home_double_yellows', '0'),
-            'away_double_yellows' => (int)$req->post('away_double_yellows', '0'),
-            'home_reds'           => (int)$req->post('home_reds', '0'),
-            'away_reds'           => (int)$req->post('away_reds', '0'),
-            'home_comeback'       => $req->post('home_comeback', '0') === '1' ? 1 : 0,
-            'away_comeback'       => $req->post('away_comeback', '0') === '1' ? 1 : 0,
-            'played'              => $req->post('played', '0') === '1' ? 1 : 0,
+            'phase'               => $req->input('phase', 'group'),
+            'match_date'          => $req->input('match_date', '') ?: null,
+            'home_team_id'        => (int)$req->input('home_team_id', '0'),
+            'away_team_id'        => (int)$req->input('away_team_id', '0'),
+            'home_goals'          => $req->input('home_goals', '') !== '' ? (int)$req->input('home_goals', '0') : null,
+            'away_goals'          => $req->input('away_goals', '') !== '' ? (int)$req->input('away_goals', '0') : null,
+            'home_yellows'        => (int)$req->input('home_yellows', '0'),
+            'away_yellows'        => (int)$req->input('away_yellows', '0'),
+            'home_double_yellows' => (int)$req->input('home_double_yellows', '0'),
+            'away_double_yellows' => (int)$req->input('away_double_yellows', '0'),
+            'home_reds'           => (int)$req->input('home_reds', '0'),
+            'away_reds'           => (int)$req->input('away_reds', '0'),
+            'home_comeback'       => $req->input('home_comeback', '0') === '1' ? 1 : 0,
+            'away_comeback'       => $req->input('away_comeback', '0') === '1' ? 1 : 0,
+            'played'              => $req->input('played', '0') === '1' ? 1 : 0,
         ]);
 
         return (new Response())->redirect($this->app->baseUrl() . '/admin/game/matches');
@@ -84,23 +84,23 @@ final class AdminGameController
     public function updateMatch(Request $req, array $params): Response
     {
         $id = (int)($params['id'] ?? 0);
-        if (!$this->app->csrf()->validate($req->post('_token', ''))) {
+        if (!$this->app->csrf()->valid($req->input('_token', ''))) {
             return (new Response())->redirect($this->app->baseUrl() . '/admin/game/matches/' . $id);
         }
 
         $matchModel = new GameMatch($this->app->db());
         $matchModel->updateResult($id, [
-            'home_goals'          => $req->post('home_goals', '') !== '' ? (int)$req->post('home_goals', '0') : null,
-            'away_goals'          => $req->post('away_goals', '') !== '' ? (int)$req->post('away_goals', '0') : null,
-            'home_yellows'        => (int)$req->post('home_yellows', '0'),
-            'away_yellows'        => (int)$req->post('away_yellows', '0'),
-            'home_double_yellows' => (int)$req->post('home_double_yellows', '0'),
-            'away_double_yellows' => (int)$req->post('away_double_yellows', '0'),
-            'home_reds'           => (int)$req->post('home_reds', '0'),
-            'away_reds'           => (int)$req->post('away_reds', '0'),
-            'home_comeback'       => $req->post('home_comeback', '0') === '1' ? 1 : 0,
-            'away_comeback'       => $req->post('away_comeback', '0') === '1' ? 1 : 0,
-            'played'              => $req->post('played', '0') === '1' ? 1 : 0,
+            'home_goals'          => $req->input('home_goals', '') !== '' ? (int)$req->input('home_goals', '0') : null,
+            'away_goals'          => $req->input('away_goals', '') !== '' ? (int)$req->input('away_goals', '0') : null,
+            'home_yellows'        => (int)$req->input('home_yellows', '0'),
+            'away_yellows'        => (int)$req->input('away_yellows', '0'),
+            'home_double_yellows' => (int)$req->input('home_double_yellows', '0'),
+            'away_double_yellows' => (int)$req->input('away_double_yellows', '0'),
+            'home_reds'           => (int)$req->input('home_reds', '0'),
+            'away_reds'           => (int)$req->input('away_reds', '0'),
+            'home_comeback'       => $req->input('home_comeback', '0') === '1' ? 1 : 0,
+            'away_comeback'       => $req->input('away_comeback', '0') === '1' ? 1 : 0,
+            'played'              => $req->input('played', '0') === '1' ? 1 : 0,
         ]);
 
         return (new Response())->redirect($this->app->baseUrl() . '/admin/game/matches');
@@ -112,7 +112,7 @@ final class AdminGameController
     public function deleteMatch(Request $req, array $params): Response
     {
         $id = (int)($params['id'] ?? 0);
-        if (!$this->app->csrf()->validate($req->post('_token', ''))) {
+        if (!$this->app->csrf()->valid($req->input('_token', ''))) {
             return (new Response())->redirect($this->app->baseUrl() . '/admin/game/matches');
         }
         $matchModel = new GameMatch($this->app->db());
@@ -141,11 +141,11 @@ final class AdminGameController
      */
     public function addProgress(Request $req): Response
     {
-        if (!$this->app->csrf()->validate($req->post('_token', ''))) {
+        if (!$this->app->csrf()->valid($req->input('_token', ''))) {
             return (new Response())->redirect($this->app->baseUrl() . '/admin/game/progress');
         }
-        $teamId     = (int)$req->post('team_id', '0');
-        $achievement = $req->post('achievement', '');
+        $teamId     = (int)$req->input('team_id', '0');
+        $achievement = $req->input('achievement', '');
 
         $valid = ['passed_group', 'round_of_16', 'quarter', 'semi', 'final', 'champion', 'last_in_group'];
         if ($teamId > 0 && in_array($achievement, $valid, true)) {
@@ -161,7 +161,7 @@ final class AdminGameController
      */
     public function removeProgress(Request $req, array $params): Response
     {
-        if (!$this->app->csrf()->validate($req->post('_token', ''))) {
+        if (!$this->app->csrf()->valid($req->input('_token', ''))) {
             return (new Response())->redirect($this->app->baseUrl() . '/admin/game/progress');
         }
         $teamId     = (int)($params['team_id'] ?? 0);
@@ -178,12 +178,12 @@ final class AdminGameController
      */
     public function setAward(Request $req): Response
     {
-        if (!$this->app->csrf()->validate($req->post('_token', ''))) {
+        if (!$this->app->csrf()->valid($req->input('_token', ''))) {
             return (new Response())->redirect($this->app->baseUrl() . '/admin/game/progress');
         }
-        $awardType  = $req->post('award_type', '');
-        $teamId     = (int)$req->post('team_id', '0');
-        $playerName = $req->post('player_name', '') ?: null;
+        $awardType  = $req->input('award_type', '');
+        $teamId     = (int)$req->input('team_id', '0');
+        $playerName = $req->input('player_name', '') ?: null;
 
         $valid = ['mvp', 'golden_boot', 'golden_glove', 'best_young'];
         if ($teamId > 0 && in_array($awardType, $valid, true)) {
@@ -199,7 +199,7 @@ final class AdminGameController
      */
     public function removeAward(Request $req, array $params): Response
     {
-        if (!$this->app->csrf()->validate($req->post('_token', ''))) {
+        if (!$this->app->csrf()->valid($req->input('_token', ''))) {
             return (new Response())->redirect($this->app->baseUrl() . '/admin/game/progress');
         }
         $awardType = $params['award'] ?? '';
@@ -215,7 +215,7 @@ final class AdminGameController
      */
     public function togglePicksLock(Request $req): Response
     {
-        if (!$this->app->csrf()->validate($req->post('_token', ''))) {
+        if (!$this->app->csrf()->valid($req->input('_token', ''))) {
             return (new Response())->redirect($this->app->baseUrl() . '/admin/game/matches');
         }
         $current = $this->app->settings()->get('game.picks_locked', '0');

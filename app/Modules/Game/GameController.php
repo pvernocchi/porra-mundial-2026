@@ -57,7 +57,7 @@ final class GameController
             return (new Response())->redirect($this->app->baseUrl() . '/login');
         }
 
-        if (!$this->app->csrf()->validate($req->post('_token', ''))) {
+        if (!$this->app->csrf()->valid($req->input('_token', ''))) {
             return (new Response())->redirect($this->app->baseUrl() . '/game/picks');
         }
 
@@ -78,7 +78,7 @@ final class GameController
         }
 
         for ($pot = 1; $pot <= 6; $pot++) {
-            $teamId = (int)$req->post('pot_' . $pot, '0');
+            $teamId = (int)$req->input('pot_' . $pot, '0');
             if ($teamId <= 0 || !isset($teamIndex[$teamId]) || $teamIndex[$teamId]->pot !== $pot) {
                 // Invalid pick; redirect back
                 return (new Response())->redirect($this->app->baseUrl() . '/game/picks');
