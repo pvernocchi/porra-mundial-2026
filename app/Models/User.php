@@ -207,19 +207,14 @@ final class User
 
     private function isDuplicateEmailError(PDOException $e): bool
     {
-        $message = $e->getMessage();
-        if (stripos($message, 'email') === false) {
-            return false;
-        }
-
-        $sqlState = (string)($e->errorInfo[0] ?? $e->getCode());
+        $sqlState = (string)($e->errorInfo[0] ?? '');
         $driverCode = (string)($e->errorInfo[1] ?? '');
 
         return $sqlState === '23000'
             && (
                 $driverCode === '1062'
-                || stripos($message, 'Duplicate entry') !== false
-                || stripos($message, 'UNIQUE constraint failed') !== false
+                || $driverCode === '19'
+                || $driverCode === '2067'
             );
     }
 }
