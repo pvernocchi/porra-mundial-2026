@@ -188,6 +188,7 @@ final class UserController
             return (new Response())->html('<h1>404</h1>', 404);
         }
         $fullName = trim((string)$req->input('full_name', ''));
+        $teamName = trim((string)$req->input('team_name', ''));
         $role     = (string)$req->input('role', 'user');
         $status   = (string)$req->input('status', 'active');
 
@@ -235,7 +236,7 @@ final class UserController
             ]), 400);
         }
 
-        $userModel->updateProfile($id, $fullName, $role, $status);
+        $userModel->updateProfile($id, $fullName, $role, $status, $teamName);
         $this->app->audit()->log('user.updated', $me?->id, [
             'target' => $id, 'role' => $role, 'status' => $status,
         ]);

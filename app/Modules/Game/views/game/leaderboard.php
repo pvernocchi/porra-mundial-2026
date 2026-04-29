@@ -2,7 +2,7 @@
 /** @var \App\Core\View $view */
 /** @var \App\Core\Application $app */
 /** @var callable $e */
-/** @var array<int, array{user_id: int, full_name: string, total: float, teams: array}> $board */
+/** @var array<int, array{user_id: int, full_name: string, display_name: string, total: float, teams: array}> $board */
 
 use App\Core\Flags;
 
@@ -43,7 +43,7 @@ $view->section('content');
         <div class="podium-avatar">
           <?= strtoupper(substr($board[1]['full_name'], 0, 2)) ?>
         </div>
-        <div class="podium-name"><?= $e($board[1]['full_name']) ?></div>
+        <div class="podium-name"><?= $e($board[1]['display_name']) ?></div>
         <div class="podium-score"><?= number_format($board[1]['total'], 1) ?> pts</div>
         <div class="podium-bar podium-bar-2"></div>
       </div>
@@ -53,7 +53,7 @@ $view->section('content');
         <div class="podium-avatar">
           <?= strtoupper(substr($board[0]['full_name'], 0, 2)) ?>
         </div>
-        <div class="podium-name"><?= $e($board[0]['full_name']) ?></div>
+        <div class="podium-name"><?= $e($board[0]['display_name']) ?></div>
         <div class="podium-score"><?= number_format($board[0]['total'], 1) ?> pts</div>
         <div class="podium-bar podium-bar-1"></div>
       </div>
@@ -63,7 +63,7 @@ $view->section('content');
         <div class="podium-avatar">
           <?= strtoupper(substr($board[2]['full_name'], 0, 2)) ?>
         </div>
-        <div class="podium-name"><?= $e($board[2]['full_name']) ?></div>
+        <div class="podium-name"><?= $e($board[2]['display_name']) ?></div>
         <div class="podium-score"><?= number_format($board[2]['total'], 1) ?> pts</div>
         <div class="podium-bar podium-bar-3"></div>
       </div>
@@ -113,7 +113,7 @@ $view->section('content');
           <?php else: ?><strong><?= $rank ?></strong>
           <?php endif ?>
         </td>
-        <td class="player-name"><?= $e($entry['full_name']) ?></td>
+        <td class="player-name"><?= $e($entry['display_name']) ?></td>
         <?php for ($p = 1; $p <= 6; $p++): ?>
           <td class="team-cell">
             <?php if (isset($teamsByPot[$p])): ?>

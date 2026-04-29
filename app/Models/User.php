@@ -18,6 +18,7 @@ final class User
 {
     public int $id = 0;
     public string $fullName = '';
+    public string $teamName = '';
     public string $email = '';
     public string $passwordHash = '';
     public string $role = 'user';
@@ -115,10 +116,11 @@ final class User
         ]);
     }
 
-    public function updateProfile(int $id, string $fullName, string $role, string $status): void
+    public function updateProfile(int $id, string $fullName, string $role, string $status, string $teamName = ''): void
     {
         $this->db->update('users', [
             'full_name'  => $fullName,
+            'team_name'  => $teamName !== '' ? $teamName : null,
             'role'       => in_array($role, ['admin', 'account_manager'], true) ? $role : 'user',
             'status'     => in_array($status, ['active', 'disabled'], true) ? $status : 'active',
             'updated_at' => gmdate('Y-m-d H:i:s'),
@@ -166,6 +168,7 @@ final class User
         $u = new self($this->db);
         $u->id = (int)($row['id'] ?? 0);
         $u->fullName = (string)($row['full_name'] ?? '');
+        $u->teamName = (string)($row['team_name'] ?? '');
         $u->email = (string)($row['email'] ?? '');
         $u->passwordHash = (string)($row['password_hash'] ?? '');
         $u->role = (string)($row['role'] ?? 'user');
