@@ -94,7 +94,7 @@ final class InviteAcceptanceTest extends TestCase
         $this->assertSame('Los Galácticos', $user->teamName);
     }
 
-    public function testCreateUserWithoutTeamNameDefaultsToNull(): void
+    public function testCreateUserWithoutTeamNameDefaultsToEmpty(): void
     {
         $userModel = new User($this->db);
         $userId = $userModel->create(
