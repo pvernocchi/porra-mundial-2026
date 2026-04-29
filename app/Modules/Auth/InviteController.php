@@ -52,13 +52,14 @@ final class InviteController
                 ?? $req->input('captcha_token', ''));
             if (!$captcha->verify($captchaToken, $req->ip())) {
                 return (new Response())->html(
-                    $this->layout('Invitación', $this->formView($inv, ['Captcha inválido.'], $token, (string)$req->input('full_name', ''))),
+                    $this->layout('Invitación', $this->formView($inv, ['Captcha inválido.'], $token, (string)$req->input('full_name', ''), (string)$req->input('team_name', ''))),
                     400
                 );
             }
         }
 
         $fullName = trim((string)$req->input('full_name', $inv['full_name']));
+        $teamName = trim((string)$req->input('team_name', ''));
         $pass     = (string)$req->input('password', '');
         $pass2    = (string)$req->input('password_confirm', '');
 
@@ -78,12 +79,12 @@ final class InviteController
 
         if ($errors !== []) {
             return (new Response())->html(
-                $this->layout('Invitación', $this->formView($inv, $errors, $token, $fullName)),
+                $this->layout('Invitación', $this->formView($inv, $errors, $token, $fullName, $teamName)),
                 400
             );
         }
 
-        $userId = $userModel->create($fullName, (string)$inv['email'], $pass, (string)$inv['role']);
+        $userId = $userModel->create($fullName, (string)$inv['email'], $pass, (string)$inv['role'], $teamName);
         $invModel->markUsed((int)$inv['id']);
         $this->app->audit()->log('invite.accepted', $userId, ['email' => $inv['email']]);
 
@@ -117,11 +118,12 @@ HTML;
      * @param array<string, mixed> $inv
      * @param array<int, string>   $errors
      */
-    private function formView(array $inv, array $errors, string $token, string $fullName = ''): string
+    private function formView(array $inv, array $errors, string $token, string $fullName = '', string $teamName = ''): string
     {
         $tok = $this->app->csrf()->field();
         $email = htmlspecialchars((string)$inv['email'], ENT_QUOTES);
         $name  = htmlspecialchars($fullName !== '' ? $fullName : (string)$inv['full_name'], ENT_QUOTES);
+        $team  = htmlspecialchars($teamName, ENT_QUOTES);
         $action = htmlspecialchars($this->app->baseUrl() . '/invite/' . $token, ENT_QUOTES);
         $expiresAt = htmlspecialchars((string)$inv['expires_at'], ENT_QUOTES);
 
@@ -141,6 +143,7 @@ HTML;
 <form method="post" action="{$action}">{$tok}
   <label>Email <input type="email" value="{$email}" disabled></label>
   <label>Nombre completo <input type="text" name="full_name" value="{$name}" required></label>
+  <label>Nombre del equipo <input type="text" name="team_name" value="{$team}" placeholder="Ej: Los Galácticos"></label>
   <label>Contraseña <input type="password" name="password" autocomplete="new-password" required minlength="8"></label>
   <label>Confirmar contraseña <input type="password" name="password_confirm" autocomplete="new-password" required minlength="8"></label>
   <p class="muted"><small>Debe tener al menos 8 caracteres y combinar al menos 3 de: minúsculas, mayúsculas, dígitos, símbolos.</small></p>
