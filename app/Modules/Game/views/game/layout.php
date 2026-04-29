@@ -81,7 +81,7 @@ if ($user !== null) {
 </main>
 <footer class="container muted" style="text-align:center">
   <hr>
-  <small>⚽ Porra Mundial 2026 · v<?= $e($app->version()) ?></small>
+  <small>⚽ La Porra del Mundial 2026 · By JaimeSan & PVernocchi v · <?= $e($app->version()) ?></small>
 </footer>
 <script>
 (function () {
