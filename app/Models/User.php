@@ -193,7 +193,7 @@ final class User
     private function hasTeamNameColumn(): bool
     {
         $table = $this->db->table('users');
-        $cacheKey = $this->db->driver() . ':' . spl_object_id($this->db->pdo()) . ':' . $table;
+        $cacheKey = $this->schemaCacheKey($table);
         if (array_key_exists($cacheKey, self::$teamNameColumnCache)) {
             return self::$teamNameColumnCache[$cacheKey];
         }
@@ -201,7 +201,10 @@ final class User
         if ($this->db->driver() === 'sqlite') {
             $quotedTable = '"' . str_replace('"', '""', $table) . '"';
             $stmt = $this->db->pdo()->query("PRAGMA table_info({$quotedTable})");
-            $rows = $stmt !== false ? $stmt->fetchAll() : [];
+            if ($stmt === false) {
+                throw new \RuntimeException('Unable to inspect users table schema.');
+            }
+            $rows = $stmt->fetchAll();
             foreach ($rows as $row) {
                 if (($row['name'] ?? '') === 'team_name') {
                     return self::$teamNameColumnCache[$cacheKey] = true;
@@ -215,5 +218,21 @@ final class User
             ['table' => $table, 'column' => 'team_name']
         );
         return self::$teamNameColumnCache[$cacheKey] = ((int)($row['c'] ?? 0) > 0);
+    }
+
+    private function schemaCacheKey(string $table): string
+    {
+        if ($this->db->driver() === 'sqlite') {
+            $stmt = $this->db->pdo()->query('PRAGMA database_list');
+            if ($stmt === false) {
+                throw new \RuntimeException('Unable to inspect database schema.');
+            }
+            $row = $stmt->fetch();
+            $database = (string)($row['file'] ?? '');
+        } else {
+            $row = $this->db->fetch('SELECT DATABASE() AS db');
+            $database = (string)($row['db'] ?? '');
+        }
+        return $this->db->driver() . ':' . $database . ':' . $table;
     }
 }
