@@ -7,6 +7,7 @@ namespace Tests;
 use App\Core\Application;
 use App\Core\Database;
 use App\Core\Installer;
+use App\Models\DuplicateUserEmail;
 use App\Models\Invitation;
 use App\Models\User;
 use PHPUnit\Framework\TestCase;
@@ -108,6 +109,41 @@ final class InviteAcceptanceTest extends TestCase
         $user = $userModel->find($userId);
         $this->assertNotNull($user);
         $this->assertSame('', $user->teamName);
+    }
+
+    public function testDeletedUserEmailStillBlocksInvitationAcceptance(): void
+    {
+        $userModel = new User($this->db);
+        $userId = $userModel->create(
+            'Deleted User',
+            'deleted@example.com',
+            'SecurePass3!',
+            'user'
+        );
+        $userModel->softDelete($userId);
+
+        $this->assertFalse($userModel->emailExists('deleted@example.com'));
+        $this->assertTrue($userModel->emailExistsIncludingDeleted('deleted@example.com'));
+    }
+
+    public function testDuplicateEmailCreateThrowsDomainException(): void
+    {
+        $userModel = new User($this->db);
+        $userModel->create(
+            'Existing User',
+            'existing@example.com',
+            'SecurePass4!',
+            'user'
+        );
+
+        $this->expectException(DuplicateUserEmail::class);
+
+        $userModel->create(
+            'Duplicate User',
+            'existing@example.com',
+            'SecurePass5!',
+            'user'
+        );
     }
 
     public function testMigrationCanRunTwice(): void
