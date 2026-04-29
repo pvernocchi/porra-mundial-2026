@@ -15,8 +15,8 @@ $base = $e($app->baseUrl());
 <body class="<?= $pending ? 'install' : 'admin' ?>">
 <?php if (!$pending): ?>
 <header class="topbar"><div class="container">
-  <a class="brand" href="<?= $base ?>/admin"><?= $e((string)$app->config()->get('site.name', 'Porra')) ?></a>
-  <nav><a href="<?= $base ?>/admin">Inicio</a></nav>
+  <a class="brand" href="<?= $base ?>/home"><?= $e((string)$app->config()->get('site.name', 'Porra')) ?></a>
+  <nav><a href="<?= $base ?>/home">Inicio</a></nav>
 </div></header>
 <?php endif ?>
 <main class="container <?= $pending ? 'narrow' : '' ?>">
