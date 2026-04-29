@@ -16,9 +16,6 @@ use App\Core\Password;
  */
 final class User
 {
-    /** @var array<string, bool> */
-    private static array $teamNameColumnCache = [];
-
     public int $id = 0;
     public string $fullName = '';
     public string $teamName = '';
@@ -31,7 +28,6 @@ final class User
     public ?string $updatedAt = null;
     public ?string $lastLoginAt = null;
     public ?string $deletedAt = null;
-    private ?string $schemaCacheKey = null;
     public function __construct(private Database $db)
     {
     }
@@ -117,10 +113,16 @@ final class User
             'created_at'    => $now,
             'updated_at'    => $now,
         ];
-        if ($this->hasTeamNameColumn()) {
-            $data['team_name'] = $teamName !== '' ? $teamName : null;
+        $data['team_name'] = $teamName !== '' ? $teamName : null;
+        try {
+            return (int)$this->db->insert('users', $data);
+        } catch (\PDOException $e) {
+            if (!$this->isMissingTeamNameColumn($e)) {
+                throw $e;
+            }
+            unset($data['team_name']);
+            return (int)$this->db->insert('users', $data);
         }
-        return (int)$this->db->insert('users', $data);
     }
 
     public function updateProfile(int $id, string $fullName, string $role, string $status, string $teamName = ''): void
@@ -131,10 +133,16 @@ final class User
             'status'     => in_array($status, ['active', 'disabled'], true) ? $status : 'active',
             'updated_at' => gmdate('Y-m-d H:i:s'),
         ];
-        if ($this->hasTeamNameColumn()) {
-            $data['team_name'] = $teamName !== '' ? $teamName : null;
+        $data['team_name'] = $teamName !== '' ? $teamName : null;
+        try {
+            $this->db->update('users', $data, ['id' => $id]);
+        } catch (\PDOException $e) {
+            if (!$this->isMissingTeamNameColumn($e)) {
+                throw $e;
+            }
+            unset($data['team_name']);
+            $this->db->update('users', $data, ['id' => $id]);
         }
-        $this->db->update('users', $data, ['id' => $id]);
     }
 
     public function setPassword(int $id, string $plain): void
@@ -191,56 +199,12 @@ final class User
         return $u;
     }
 
-    private function hasTeamNameColumn(): bool
+    private function isMissingTeamNameColumn(\PDOException $e): bool
     {
-        $table = $this->db->table('users');
-        $cacheKey = $this->schemaCacheKey($table);
-        if (array_key_exists($cacheKey, self::$teamNameColumnCache)) {
-            return self::$teamNameColumnCache[$cacheKey];
-        }
-
-        if ($this->db->driver() === 'sqlite') {
-            $stmt = $this->db->pdo()->query('PRAGMA table_info(' . $this->db->pdo()->quote($table) . ')');
-            if ($stmt === false) {
-                $error = implode(' ', array_filter($this->db->pdo()->errorInfo()));
-                throw new \RuntimeException("Unable to access users table metadata. {$error}");
-            }
-            foreach ($stmt->fetchAll(\PDO::FETCH_ASSOC) as $row) {
-                if (($row['name'] ?? '') === 'team_name') {
-                    return self::$teamNameColumnCache[$cacheKey] = true;
-                }
-            }
-            return self::$teamNameColumnCache[$cacheKey] = false;
-        }
-
-        $row = $this->db->fetch(
-            'SELECT COUNT(*) AS c FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = :table AND COLUMN_NAME = :column',
-            ['table' => $table, 'column' => 'team_name']
-        );
-        return self::$teamNameColumnCache[$cacheKey] = ((int)($row['c'] ?? 0) > 0);
-    }
-
-    private function schemaCacheKey(string $table): string
-    {
-        if ($this->schemaCacheKey !== null) {
-            return $this->schemaCacheKey;
-        }
-
-        if ($this->db->driver() === 'sqlite') {
-            $stmt = $this->db->pdo()->query('PRAGMA database_list');
-            if ($stmt === false) {
-                $error = implode(' ', array_filter($this->db->pdo()->errorInfo()));
-                throw new \RuntimeException("Unable to access database metadata; check database connection and permissions. {$error}");
-            }
-            $row = $stmt->fetch(\PDO::FETCH_ASSOC);
-            if ($row === false) {
-                throw new \RuntimeException('Unable to retrieve database information.');
-            }
-            $database = (string)($row['file'] ?? '');
-        } else {
-            $row = $this->db->fetch('SELECT DATABASE() AS db');
-            $database = (string)($row['db'] ?? '');
-        }
-        return $this->schemaCacheKey = $this->db->driver() . ':' . $database . ':' . $table;
+        $message = $e->getMessage();
+        return str_contains($message, 'team_name')
+            && (str_contains($message, 'Unknown column')
+                || str_contains($message, 'no column named')
+                || str_contains($message, 'no such column'));
     }
 }
