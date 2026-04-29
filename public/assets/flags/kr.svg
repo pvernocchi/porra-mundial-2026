@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600">
+
+<rect width="900" height="600" fill="#FFFFFF"/>
+<circle cx="450" cy="300" r="115" fill="#003478"/>
+<path d="M335,300 A115,115 0 0,1 565,300 A57.5,57.5 0 0,1 450,300 A57.5,57.5 0 0,0 335,300 Z" fill="#C60C30"/>
+<circle cx="450" cy="242" r="57" fill="#C60C30"/>
+<circle cx="450" cy="358" r="57" fill="#003478"/>
+<g transform="translate(186,148) rotate(-56,55,80)">
+  <rect width="120" height="15" fill="#000"/><rect y="26" width="120" height="15" fill="#000"/><rect y="52" width="120" height="15" fill="#000"/>
+</g>
+<g transform="translate(585,148) rotate(56,-50,80)">
+  <rect width="120" height="15" fill="#000"/>
+  <rect y="26" width="52" height="15" fill="#000"/><rect x="68" y="26" width="52" height="15" fill="#000"/>
+  <rect y="52" width="120" height="15" fill="#000"/>
+</g>
+<g transform="translate(182,378) rotate(56,58,18)">
+  <rect width="52" height="15" fill="#000"/><rect x="68" width="52" height="15" fill="#000"/>
+  <rect y="26" width="120" height="15" fill="#000"/>
+  <rect y="52" width="52" height="15" fill="#000"/><rect x="68" y="52" width="52" height="15" fill="#000"/>
+</g>
+<g transform="translate(584,378) rotate(-56,-48,18)">
+  <rect width="120" height="15" fill="#000"/>
+  <rect y="26" width="52" height="15" fill="#000"/><rect x="68" y="26" width="52" height="15" fill="#000"/>
+  <rect y="52" width="120" height="15" fill="#000"/>
+</g>
+
+</svg>
