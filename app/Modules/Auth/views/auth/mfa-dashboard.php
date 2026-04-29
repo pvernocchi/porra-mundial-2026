@@ -23,7 +23,7 @@ $base = $e($app->baseUrl());
 <h1>Métodos de autenticación de dos factores (MFA)</h1>
 
 <?php if ($pending): ?>
-  <div class="alert alert-warning">Tu cuenta requiere MFA. Configura al menos un método para continuar.</div>
+  <div class="alert alert-info">Configura un método de autenticación de dos factores (MFA) para mayor seguridad. Es opcional y puedes hacerlo más tarde.</div>
 <?php endif ?>
 
 <?php if ($msg): ?><div class="alert alert-info"><?= $e($msg) ?></div><?php endif ?>
@@ -89,6 +89,15 @@ $base = $e($app->baseUrl());
       onsubmit="return confirm('Esto invalidará los códigos anteriores. ¿Continuar?');">
   <?= $app->csrf()->field() ?>
   <button class="btn btn-secondary" type="submit">Regenerar códigos</button>
+</form>
+<?php endif ?>
+
+<?php if ($pending): ?>
+<hr>
+<p class="muted"><small>Puedes configurar MFA más tarde desde tu perfil de cuenta.</small></p>
+<form method="post" action="<?= $base ?>/account/mfa/enroll/skip">
+  <?= $app->csrf()->field() ?>
+  <button class="btn btn-secondary" type="submit">Omitir configuración de MFA</button>
 </form>
 <?php endif ?>
 
