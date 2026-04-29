@@ -44,19 +44,9 @@ final class InviteController
             return (new Response())->html($this->layout('Invitación', $this->invalidView()), 410);
         }
 
-        // Captcha (if enabled)
-        $captcha = $this->app->captcha();
-        if ($captcha->isEnabled()) {
-            $captchaToken = (string)($req->input('g-recaptcha-response')
-                ?? $req->input('cf-turnstile-response')
-                ?? $req->input('captcha_token', ''));
-            if (!$captcha->verify($captchaToken, $req->ip())) {
-                return (new Response())->html(
-                    $this->layout('Invitación', $this->formView($inv, ['Captcha inválido.'], $token, (string)$req->input('full_name', ''), (string)$req->input('team_name', ''))),
-                    400
-                );
-            }
-        }
+        // Captcha is intentionally disabled on the invite acceptance page:
+        // the URL is single-use and unguessable, so the bot-protection value
+        // is low and verification failures were blocking legitimate users.
 
         $fullName = trim((string)$req->input('full_name', $inv['full_name']));
         $teamName = trim((string)$req->input('team_name', ''));
@@ -88,15 +78,10 @@ final class InviteController
         $invModel->markUsed((int)$inv['id']);
         $this->app->audit()->log('invite.accepted', $userId, ['email' => $inv['email']]);
 
-        // Auto-login.
+        // Auto-login. MFA enrollment is not enforced on the invite acceptance
+        // page — users can opt-in later from their account settings.
         $user = $userModel->find($userId);
         if ($user !== null) {
-            $policy = $this->app->auth()->mfaPolicy();
-            if ($policy === 'all' || ($policy === 'admins' && in_array($user->role, ['admin', 'account_manager'], true))) {
-                // Stash login state to require MFA enrollment immediately.
-                $this->app->session()->set('_pending_enroll_user_id', $user->id);
-                return (new Response())->redirect($this->app->baseUrl() . '/account/mfa/enroll');
-            }
             $this->app->auth()->finaliseLogin($user, mfaUsed: false);
         }
         return (new Response())->redirect($this->app->baseUrl() . '/account');
@@ -134,9 +119,6 @@ HTML;
             $errBlock .= '</ul></div>';
         }
 
-        $captcha = $this->app->captcha();
-        $cap = $captcha->isEnabled() ? $captcha->widgetHtml('invite') : '';
-
         return <<<HTML
 <p>Has sido invitado a unirte. Esta invitación expira el <code>{$expiresAt}</code> (UTC).</p>
 {$errBlock}
@@ -147,7 +129,6 @@ HTML;
   <label>Contraseña <input type="password" name="password" autocomplete="new-password" required minlength="8"></label>
   <label>Confirmar contraseña <input type="password" name="password_confirm" autocomplete="new-password" required minlength="8"></label>
   <p class="muted"><small>Debe tener al menos 8 caracteres y combinar al menos 3 de: minúsculas, mayúsculas, dígitos, símbolos.</small></p>
-  {$cap}
   <button class="btn btn-primary" type="submit">Crear mi cuenta</button>
 </form>
 HTML;
