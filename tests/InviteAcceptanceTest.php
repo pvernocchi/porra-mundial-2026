@@ -149,6 +149,14 @@ final class InviteAcceptanceTest extends TestCase
             $this->assertNotNull($user);
             $this->assertSame('Legacy User', $user->fullName);
             $this->assertSame('', $user->teamName);
+
+            $emptyTeamUserId = $userModel->create(
+                'Legacy Empty Team',
+                'legacy-empty@example.com',
+                'SecurePass4#',
+                'user'
+            );
+            $this->assertGreaterThan(0, $emptyTeamUserId);
         } finally {
             @unlink($legacyDbFile);
         }

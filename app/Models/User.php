@@ -31,6 +31,7 @@ final class User
     public ?string $updatedAt = null;
     public ?string $lastLoginAt = null;
     public ?string $deletedAt = null;
+    private ?string $schemaCacheKey = null;
     public function __construct(private Database $db)
     {
     }
@@ -199,7 +200,10 @@ final class User
         }
 
         if ($this->db->driver() === 'sqlite') {
-            $quotedTable = $this->db->pdo()->quote($table);
+            if (!preg_match('/^[A-Za-z_][A-Za-z0-9_]*$/', $table)) {
+                throw new \RuntimeException("Invalid users table name {$table}.");
+            }
+            $quotedTable = '"' . str_replace('"', '""', $table) . '"';
             $stmt = $this->db->pdo()->query("PRAGMA table_info({$quotedTable})");
             if ($stmt === false) {
                 $error = implode(' ', array_filter($this->db->pdo()->errorInfo()));
@@ -223,6 +227,10 @@ final class User
 
     private function schemaCacheKey(string $table): string
     {
+        if ($this->schemaCacheKey !== null) {
+            return $this->schemaCacheKey;
+        }
+
         if ($this->db->driver() === 'sqlite') {
             $stmt = $this->db->pdo()->query('PRAGMA database_list');
             if ($stmt === false) {
@@ -235,6 +243,6 @@ final class User
             $row = $this->db->fetch('SELECT DATABASE() AS db');
             $database = (string)($row['db'] ?? '');
         }
-        return $this->db->driver() . ':' . $database . ':' . $table;
+        return $this->schemaCacheKey = $this->db->driver() . ':' . $database . ':' . $table;
     }
 }
