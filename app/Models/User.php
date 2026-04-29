@@ -200,22 +200,14 @@ final class User
         }
 
         if ($this->db->driver() === 'sqlite') {
-            if (!preg_match('/^[A-Za-z_][A-Za-z0-9_]*$/', $table)) {
-                throw new \RuntimeException("Invalid users table name {$table}.");
+            $row = $this->db->fetch(
+                "SELECT sql FROM sqlite_master WHERE type IN ('table', 'view') AND name = :table LIMIT 1",
+                ['table' => $table]
+            );
+            if ($row === null) {
+                return self::$teamNameColumnCache[$cacheKey] = false;
             }
-            $quotedTable = '"' . str_replace('"', '""', $table) . '"';
-            $stmt = $this->db->pdo()->query("PRAGMA table_info({$quotedTable})");
-            if ($stmt === false) {
-                $error = implode(' ', array_filter($this->db->pdo()->errorInfo()));
-                throw new \RuntimeException("Unable to inspect schema for table {$table}. {$error}");
-            }
-            $rows = $stmt->fetchAll();
-            foreach ($rows as $row) {
-                if (($row['name'] ?? '') === 'team_name') {
-                    return self::$teamNameColumnCache[$cacheKey] = true;
-                }
-            }
-            return self::$teamNameColumnCache[$cacheKey] = false;
+            return self::$teamNameColumnCache[$cacheKey] = preg_match('/(?:^|[\s,(])["`\[]?team_name["`\]]?\s+/i', (string)$row['sql']) === 1;
         }
 
         $row = $this->db->fetch(
@@ -235,7 +227,7 @@ final class User
             $stmt = $this->db->pdo()->query('PRAGMA database_list');
             if ($stmt === false) {
                 $error = implode(' ', array_filter($this->db->pdo()->errorInfo()));
-                throw new \RuntimeException("Unable to query SQLite database list for schema cache key generation. {$error}");
+                throw new \RuntimeException("Unable to query SQLite database list for schema cache key generation; check database connection and permissions. {$error}");
             }
             $row = $stmt->fetch();
             $database = (string)($row['file'] ?? '');
