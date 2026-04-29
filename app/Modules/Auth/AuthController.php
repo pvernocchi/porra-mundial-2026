@@ -24,7 +24,7 @@ final class AuthController
     public function showLogin(Request $req): Response
     {
         if ($this->app->auth()->check()) {
-            $target = $this->app->auth()->canManageUsers() ? '/admin' : '/home';
+            $target = $this->app->auth()->canManageUsers() ? '/admin' : '/game/picks';
             return (new Response())->redirect($this->app->baseUrl() . $target);
         }
         $error = $this->app->session()->flash('login_error');
@@ -186,7 +186,7 @@ final class AuthController
      */
     private function safeRedirect(string $url): string
     {
-        $default = $this->app->baseUrl() . ($this->app->auth()->canManageUsers() ? '/admin' : '/home');
+        $default = $this->app->baseUrl() . ($this->app->auth()->canManageUsers() ? '/admin' : '/game/picks');
         if ($url === '') {
             return $default;
         }

@@ -6,55 +6,12 @@ namespace App\Modules\Game;
 use App\Core\Application;
 use App\Core\Request;
 use App\Core\Response;
-use App\Models\Team;
-use App\Models\Pick;
 use App\Models\Score;
 use App\Models\GameMatch;
 
 final class GameController
 {
     public function __construct(private Application $app) {}
-
-    /**
-     * Homepage dashboard for regular (non-admin) users.
-     */
-    public function home(Request $req): Response
-    {
-        $user = $this->app->auth()->user();
-        if ($user === null) {
-            return (new Response())->redirect($this->app->baseUrl() . '/login');
-        }
-
-        $pickModel  = new Pick($this->app->db());
-        $scoreModel = new Score($this->app->db());
-        $teamModel  = new Team($this->app->db());
-
-        $picks      = $pickModel->forUser($user->id);
-        $picksCount = count($picks);
-        $breakdown  = $scoreModel->userScoreBreakdown($user->id);
-        
-        // Get team details for user's picks
-        $pickedTeams = [];
-        foreach ($picks as $pick) {
-            $team = $teamModel->find($pick->teamId);
-            if ($team !== null) {
-                $pickedTeams[] = [
-                    'id'   => $team->id,
-                    'name' => $team->name,
-                    'pot'  => $team->pot,
-                ];
-            }
-        }
-
-        return (new Response())->html($this->app->view()->render('game.home', [
-            'user'        => $user,
-            'picksCount'  => $picksCount,
-            'totalScore'  => $breakdown['total'],
-            'rank'        => $breakdown['rank'],
-            'totalPlayers'=> $breakdown['total_players'],
-            'pickedTeams' => $pickedTeams,
-        ]));
-    }
 
     /**
      * My scores page: detailed breakdown per team.

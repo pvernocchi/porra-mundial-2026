@@ -138,7 +138,6 @@ return static function (Application $app): Router {
     $router->post('/admin/game/awards/{award}/delete',                       fn(Request $r, array $p) => (new AdminGameController($app))->removeAward($r, $p),[$auth, $userManager]);
 
     /* ---------- Game: Player-facing (any logged-in user) ---------- */
-    $router->get('/home',             fn(Request $r) => (new GameController($app))->home($r),        [$auth]);
     $router->get('/game/picks',       fn(Request $r) => (new GameController($app))->picks($r),       [$auth]);
     $router->post('/game/picks',      fn(Request $r) => (new GameController($app))->savePicks($r),   [$auth]);
     $router->get('/game/my-scores',   fn(Request $r) => (new GameController($app))->myScores($r),    [$auth]);
