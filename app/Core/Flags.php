@@ -50,7 +50,7 @@ final class Flags
         'Panamá'                => 'pa',
         'RD Congo'              => 'cd',
         'Sudáfrica'             => 'za',
-        'Venezuela'             => 've',
+        'Uzbekistán'            => 'uz',
         'Arabia Saudí'          => 'sa',
         'Bosnia y Herzegovina'  => 'ba',
         'Curazao'               => 'cw',

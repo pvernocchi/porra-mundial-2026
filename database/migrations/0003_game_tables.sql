@@ -96,7 +96,7 @@ INSERT INTO {prefix:teams} (name, pot) VALUES
     ('Panamá', 5),
     ('RD Congo', 5),
     ('Sudáfrica', 5),
-    ('Venezuela', 5),
+    ('Uzbekistán', 5),
     ('Arabia Saudí', 6),
     ('Bosnia y Herzegovina', 6),
     ('Curazao', 6),
