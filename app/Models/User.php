@@ -28,6 +28,7 @@ final class User
     public ?string $updatedAt = null;
     public ?string $lastLoginAt = null;
     public ?string $deletedAt = null;
+    private ?bool $hasTeamNameColumn = null;
 
     public function __construct(private Database $db)
     {
@@ -104,9 +105,8 @@ final class User
     public function create(string $fullName, string $email, string $plainPassword, string $role = 'user', string $teamName = ''): int
     {
         $now = gmdate('Y-m-d H:i:s');
-        return (int)$this->db->insert('users', [
+        $data = [
             'full_name'     => $fullName,
-            'team_name'     => $teamName !== '' ? $teamName : null,
             'email'         => strtolower($email),
             'password_hash' => Password::hash($plainPassword),
             'role'          => in_array($role, ['admin', 'account_manager'], true) ? $role : 'user',
@@ -114,18 +114,25 @@ final class User
             'mfa_enforced'  => 0,
             'created_at'    => $now,
             'updated_at'    => $now,
-        ]);
+        ];
+        if ($this->hasTeamNameColumn()) {
+            $data['team_name'] = $teamName !== '' ? $teamName : null;
+        }
+        return (int)$this->db->insert('users', $data);
     }
 
     public function updateProfile(int $id, string $fullName, string $role, string $status, string $teamName = ''): void
     {
-        $this->db->update('users', [
+        $data = [
             'full_name'  => $fullName,
-            'team_name'  => $teamName !== '' ? $teamName : null,
             'role'       => in_array($role, ['admin', 'account_manager'], true) ? $role : 'user',
             'status'     => in_array($status, ['active', 'disabled'], true) ? $status : 'active',
             'updated_at' => gmdate('Y-m-d H:i:s'),
-        ], ['id' => $id]);
+        ];
+        if ($this->hasTeamNameColumn()) {
+            $data['team_name'] = $teamName !== '' ? $teamName : null;
+        }
+        $this->db->update('users', $data, ['id' => $id]);
     }
 
     public function setPassword(int $id, string $plain): void
@@ -180,5 +187,29 @@ final class User
         $u->lastLoginAt = $row['last_login_at'] ?? null;
         $u->deletedAt = $row['deleted_at'] ?? null;
         return $u;
+    }
+
+    private function hasTeamNameColumn(): bool
+    {
+        if ($this->hasTeamNameColumn !== null) {
+            return $this->hasTeamNameColumn;
+        }
+
+        if ($this->db->driver() === 'sqlite') {
+            $table = str_replace("'", "''", $this->db->table('users'));
+            $rows = $this->db->pdo()->query("PRAGMA table_info('{$table}')")->fetchAll();
+            foreach ($rows as $row) {
+                if (($row['name'] ?? '') === 'team_name') {
+                    return $this->hasTeamNameColumn = true;
+                }
+            }
+            return $this->hasTeamNameColumn = false;
+        }
+
+        $row = $this->db->fetch(
+            'SELECT COUNT(*) AS c FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = :table AND COLUMN_NAME = :column',
+            ['table' => $this->db->table('users'), 'column' => 'team_name']
+        );
+        return $this->hasTeamNameColumn = ((int)($row['c'] ?? 0) > 0);
     }
 }
