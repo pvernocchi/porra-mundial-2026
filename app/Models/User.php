@@ -213,8 +213,9 @@ final class User
      */
     private function isDuplicateEmailError(PDOException $e): bool
     {
-        $sqlState = (string)($e->errorInfo[0] ?? '');
-        $driverCode = (string)($e->errorInfo[1] ?? '');
+        $errorInfo = is_array($e->errorInfo) ? $e->errorInfo : [];
+        $sqlState = (string)($errorInfo[0] ?? '');
+        $driverCode = (string)($errorInfo[1] ?? '');
 
         return $sqlState === '23000'
             && (
