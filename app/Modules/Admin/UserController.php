@@ -100,7 +100,7 @@ final class UserController
         // Account managers cannot assign admin or account_manager roles.
         if ($this->app->auth()->isAccountManager() && $role !== 'user') { $role = 'user'; }
         if ((new User($this->app->db()))->emailExistsIncludingDeleted($email)) {
-            $errors[] = 'Ya existe un usuario con ese email.';
+            $errors[] = 'Ya existe un usuario con ese email. Revisa esa cuenta antes de reenviar la invitación.';
         }
         if ($errors !== []) {
             return (new Response())->html($this->app->view()->render('admin.users-invite', [

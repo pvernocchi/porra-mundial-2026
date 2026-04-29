@@ -219,7 +219,7 @@ final class User
 
         return $sqlState === '23000'
             && (
-                // 1062 is MySQL/MariaDB duplicate key; 19 is SQLite constraint violation.
+                // 1062 is MySQL/MariaDB duplicate key; 19 is SQLite's general constraint code.
                 $driverCode === '1062'
                 || $driverCode === '19'
             );
