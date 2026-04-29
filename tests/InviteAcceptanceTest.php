@@ -9,7 +9,6 @@ use App\Core\Database;
 use App\Core\Installer;
 use App\Models\Invitation;
 use App\Models\User;
-use PDO;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -109,57 +108,6 @@ final class InviteAcceptanceTest extends TestCase
         $user = $userModel->find($userId);
         $this->assertNotNull($user);
         $this->assertSame('', $user->teamName);
-    }
-
-    public function testCreateUserStillWorksBeforeTeamNameMigration(): void
-    {
-        $legacyDbFile = tempnam(sys_get_temp_dir(), 'sqlite');
-        try {
-            $pdo = new PDO('sqlite:' . $legacyDbFile);
-            $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-            $pdo->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
-            $pdo->exec(
-                'CREATE TABLE pm_users (
-                    id INTEGER PRIMARY KEY AUTOINCREMENT,
-                    full_name VARCHAR(150) NOT NULL,
-                    email VARCHAR(190) NOT NULL,
-                    password_hash VARCHAR(255) NOT NULL,
-                    role VARCHAR(20) NOT NULL DEFAULT \'user\',
-                    status VARCHAR(20) NOT NULL DEFAULT \'active\',
-                    mfa_enforced INTEGER NOT NULL DEFAULT 0,
-                    created_at DATETIME NULL,
-                    updated_at DATETIME NULL,
-                    last_login_at DATETIME NULL,
-                    deleted_at DATETIME NULL,
-                    UNIQUE (email)
-                )'
-            );
-
-            $userModel = new User(new Database($pdo, 'pm_', 'sqlite'));
-            $userId = $userModel->create(
-                'Legacy User',
-                'legacy@example.com',
-                'SecurePass3#',
-                'user',
-                'Legacy Team'
-            );
-
-            $this->assertGreaterThan(0, $userId);
-            $user = $userModel->find($userId);
-            $this->assertNotNull($user);
-            $this->assertSame('Legacy User', $user->fullName);
-            $this->assertSame('', $user->teamName);
-
-            $emptyTeamUserId = $userModel->create(
-                'Legacy Empty Team',
-                'legacy-empty@example.com',
-                'SecurePass4#',
-                'user'
-            );
-            $this->assertGreaterThan(0, $emptyTeamUserId);
-        } finally {
-            @unlink($legacyDbFile);
-        }
     }
 
     public function testMigrationCanRunTwice(): void
