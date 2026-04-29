@@ -8,4 +8,3 @@ use RuntimeException;
 final class DuplicateUserEmail extends RuntimeException
 {
 }
-
