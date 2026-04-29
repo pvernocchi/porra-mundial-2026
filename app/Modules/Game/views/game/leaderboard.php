@@ -136,61 +136,6 @@ $view->section('content');
   </table>
   </div>
 
-  <div class="rules-section">
-    <h2>
-      <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>
-      </svg>
-      Criterios de puntuación
-    </h2>
-    <div class="rules-cards">
-      <div class="rules-card">
-        <h3>⚽ Resultados</h3>
-        <ul>
-          <li>✅ Victoria: <strong>+3</strong></li>
-          <li>➖ Empate: <strong>+1</strong></li>
-        </ul>
-      </div>
-      <div class="rules-card">
-        <h3>🏟️ Avances</h3>
-        <ul>
-          <li>Fase de grupos: <strong>+3</strong></li>
-          <li>Octavos: <strong>+3</strong></li>
-          <li>Cuartos: <strong>+4</strong></li>
-          <li>Semifinales: <strong>+6</strong></li>
-          <li>Final: <strong>+8</strong></li>
-          <li>🏆 Campeón: <strong>+12</strong></li>
-        </ul>
-      </div>
-      <div class="rules-card">
-        <h3>🎁 Bonus</h3>
-        <ul>
-          <li>3+ goles: <strong>+2</strong></li>
-          <li>Portería a cero: <strong>+1</strong></li>
-          <li>Remontada: <strong>+1</strong></li>
-        </ul>
-      </div>
-      <div class="rules-card">
-        <h3>⚠️ Penalizaciones</h3>
-        <ul>
-          <li>🟨 Amarilla: <strong>−0,2</strong></li>
-          <li>🟨🟨 Doble amarilla: <strong>−1</strong></li>
-          <li>🟥 Roja: <strong>−2</strong></li>
-          <li>Recibir 3+ goles: <strong>−2</strong></li>
-          <li>Último del grupo: <strong>−1</strong></li>
-        </ul>
-      </div>
-      <div class="rules-card">
-        <h3>🏅 Premios individuales</h3>
-        <ul>
-          <li>MVP: <strong>+3</strong></li>
-          <li>Goleador: <strong>+2</strong></li>
-          <li>Mejor portero: <strong>+2</strong></li>
-          <li>Mejor joven: <strong>+2</strong></li>
-        </ul>
-      </div>
-    </div>
-  </div>
 <?php endif ?>
 
 <?php $view->endSection(); ?>
