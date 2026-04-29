@@ -117,7 +117,7 @@ final class User
         try {
             return (int)$this->db->insert('users', $data);
         } catch (\PDOException $e) {
-            if (!$this->isMissingTeamNameColumn($e)) {
+            if (!$this->isMissingColumn($e, 'team_name')) {
                 throw $e;
             }
             unset($data['team_name']);
@@ -137,7 +137,7 @@ final class User
         try {
             $this->db->update('users', $data, ['id' => $id]);
         } catch (\PDOException $e) {
-            if (!$this->isMissingTeamNameColumn($e)) {
+            if (!$this->isMissingColumn($e, 'team_name')) {
                 throw $e;
             }
             unset($data['team_name']);
@@ -199,10 +199,10 @@ final class User
         return $u;
     }
 
-    private function isMissingTeamNameColumn(\PDOException $e): bool
+    private function isMissingColumn(\PDOException $e, string $column): bool
     {
         $message = $e->getMessage();
-        return str_contains($message, 'team_name')
+        return str_contains($message, $column)
             && (str_contains($message, 'Unknown column')
                 || str_contains($message, 'no column named')
                 || str_contains($message, 'no such column'));
