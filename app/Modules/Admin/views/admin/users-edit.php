@@ -25,6 +25,8 @@ $base = $e($app->baseUrl());
   <label>Email <input type="email" value="<?= $e($user->email) ?>" disabled>
     <small class="muted">El email no se puede modificar desde aquí.</small></label>
   <label>Nombre completo <input type="text" name="full_name" value="<?= $e($user->fullName) ?>" required></label>
+  <label>Nombre del equipo <input type="text" name="team_name" value="<?= $e($user->teamName) ?>" placeholder="Ej: Trulalá Fútbol Club">
+    <small class="muted">Nombre gracioso que se muestra en la clasificación.</small></label>
   <label>Rol
     <select name="role">
       <option value="user"  <?= $user->role === 'user'  ? 'selected' : '' ?>>Usuario</option>

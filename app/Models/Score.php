@@ -124,13 +124,13 @@ final class Score
 
     /**
      * Full leaderboard: each user's total score across their 6 picked teams.
-     * @return array<int, array{user_id: int, full_name: string, total: float, teams: array<int, array{team_id: int, team_name: string, pot: int, points: float}>}>
+     * @return array<int, array{user_id: int, full_name: string, display_name: string, total: float, teams: array<int, array{team_id: int, team_name: string, pot: int, points: float}>}>
      */
     public function leaderboard(): array
     {
         // Get all picks with team info
         $picks = $this->db->fetchAll(
-            'SELECT p.user_id, p.team_id, p.pot, t.name AS team_name, u.full_name
+            'SELECT p.user_id, p.team_id, p.pot, t.name AS team_name, u.full_name, u.team_name AS user_team_name
              FROM {prefix:picks} p
              JOIN {prefix:teams} t ON t.id = p.team_id
              JOIN {prefix:users} u ON u.id = p.user_id AND u.status != :s
@@ -165,11 +165,15 @@ final class Score
         foreach ($picks as $r) {
             $uid = (int)$r['user_id'];
             if (!isset($board[$uid])) {
+                $userTeamName = trim((string)($r['user_team_name'] ?? ''));
+                $fullName = (string)$r['full_name'];
+                $displayName = $userTeamName !== '' ? $userTeamName . ' (' . $fullName . ')' : $fullName;
                 $board[$uid] = [
-                    'user_id'   => $uid,
-                    'full_name' => (string)$r['full_name'],
-                    'total'     => 0.0,
-                    'teams'     => [],
+                    'user_id'      => $uid,
+                    'full_name'    => $fullName,
+                    'display_name' => $displayName,
+                    'total'        => 0.0,
+                    'teams'        => [],
                 ];
             }
             $teamId = (int)$r['team_id'];
