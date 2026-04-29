@@ -200,10 +200,7 @@ final class User
         }
 
         if ($this->db->driver() === 'sqlite') {
-            if (!preg_match('/^[A-Za-z_][A-Za-z0-9_]*$/', $table)) {
-                throw new \RuntimeException('Invalid users table name.');
-            }
-            $stmt = $this->db->pdo()->query("PRAGMA table_info({$table})");
+            $stmt = $this->db->pdo()->query('PRAGMA table_info(' . $this->db->pdo()->quote($table) . ')');
             if ($stmt === false) {
                 $error = implode(' ', array_filter($this->db->pdo()->errorInfo()));
                 throw new \RuntimeException("Unable to access users table metadata. {$error}");
@@ -236,6 +233,9 @@ final class User
                 throw new \RuntimeException("Unable to access database metadata; check database connection and permissions. {$error}");
             }
             $row = $stmt->fetch(\PDO::FETCH_ASSOC);
+            if ($row === false) {
+                throw new \RuntimeException('Unable to retrieve database information.');
+            }
             $database = (string)($row['file'] ?? '');
         } else {
             $row = $this->db->fetch('SELECT DATABASE() AS db');
