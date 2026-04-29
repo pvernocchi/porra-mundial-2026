@@ -200,11 +200,17 @@ final class User
         return $u;
     }
 
+    /**
+     * Normalize email addresses for case-insensitive comparison.
+     */
     private function normalizeEmail(string $email): string
     {
         return strtolower(trim($email));
     }
 
+    /**
+     * Detect database-level duplicate email violations for supported drivers.
+     */
     private function isDuplicateEmailError(PDOException $e): bool
     {
         $sqlState = (string)($e->errorInfo[0] ?? '');

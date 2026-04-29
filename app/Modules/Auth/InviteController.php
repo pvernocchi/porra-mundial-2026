@@ -148,6 +148,9 @@ HTML;
             . '<p>Pide al administrador que te reenvíe una nueva invitación.</p>';
     }
 
+    /**
+     * Spanish user-facing error shown when an invite email already belongs to a user.
+     */
     private function duplicateEmailMessage(): string
     {
         return 'Ya existe una cuenta con ese email. Pide al administrador que revise esa cuenta antes de reenviar la invitación.';
