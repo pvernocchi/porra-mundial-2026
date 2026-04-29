@@ -199,10 +199,11 @@ final class User
         }
 
         if ($this->db->driver() === 'sqlite') {
-            $quotedTable = '"' . str_replace('"', '""', $table) . '"';
+            $quotedTable = $this->db->pdo()->quote($table);
             $stmt = $this->db->pdo()->query("PRAGMA table_info({$quotedTable})");
             if ($stmt === false) {
-                throw new \RuntimeException('Unable to inspect users table schema.');
+                $error = implode(' ', array_filter($this->db->pdo()->errorInfo()));
+                throw new \RuntimeException("Unable to inspect schema for table {$table}. {$error}");
             }
             $rows = $stmt->fetchAll();
             foreach ($rows as $row) {
@@ -225,7 +226,8 @@ final class User
         if ($this->db->driver() === 'sqlite') {
             $stmt = $this->db->pdo()->query('PRAGMA database_list');
             if ($stmt === false) {
-                throw new \RuntimeException('Unable to inspect database schema.');
+                $error = implode(' ', array_filter($this->db->pdo()->errorInfo()));
+                throw new \RuntimeException("Unable to query SQLite database list for schema cache key generation. {$error}");
             }
             $row = $stmt->fetch();
             $database = (string)($row['file'] ?? '');
