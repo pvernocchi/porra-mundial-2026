@@ -10,6 +10,13 @@ on:
         description: "Branch, tag o SHA a desplegar (ejecución manual)"
         required: false
         default: "main"
+  workflow_call:
+    inputs:
+      ref:
+        description: "Branch, tag o SHA a desplegar"
+        required: false
+        default: "main"
+        type: string
 
 permissions:
   contents: read
@@ -21,7 +28,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event.inputs.ref || github.ref }}
+          ref: ${{ inputs.ref || github.event.inputs.ref || github.ref }}
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2

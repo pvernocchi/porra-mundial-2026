@@ -18,6 +18,8 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
+    outputs:
+      new_version: ${{ steps.bump.outputs.new_version }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -82,3 +84,10 @@ jobs:
           tag_name: "v${{ steps.bump.outputs.new_version }}"
           name: "v${{ steps.bump.outputs.new_version }}"
           generate_release_notes: true
+
+  deploy:
+    needs: release
+    uses: ./.github/workflows/deploy-ftp.yml
+    with:
+      ref: "v${{ needs.release.outputs.new_version }}"
+    secrets: inherit
