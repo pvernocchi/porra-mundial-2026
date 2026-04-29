@@ -73,11 +73,13 @@ final class Flags
             return '';
         }
         $alt = htmlspecialchars($teamName, ENT_QUOTES, 'UTF-8');
+        $height = (int)round($width * 2 / 3);
         return sprintf(
-            '<img src="https://flagcdn.com/w%d/%s.png" srcset="https://flagcdn.com/w%d/%s.png 2x" width="%d" alt="%s" class="flag" loading="lazy">',
-            $width, $code,
-            $width * 2, $code,
-            $width, $alt
+            '<img src="/assets/flags/%s.svg" width="%d" height="%d" alt="%s" class="flag" loading="lazy">',
+            $code,
+            $width,
+            $height,
+            $alt
         );
     }
 }

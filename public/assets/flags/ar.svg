@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 900 600">
+
+<rect y="0.0" width="900" height="200.0" fill="#74ACDF"/>
+<rect y="200.0" width="900" height="200.0" fill="#FFFFFF"/>
+<rect y="400.0" width="900" height="200.0" fill="#74ACDF"/>
+<line x1="450" y1="300" x2="545" y2="300" stroke="#F6B40E" stroke-width="14"/> <line x1="450" y1="300" x2="538" y2="336" stroke="#F6B40E" stroke-width="10"/> <line x1="450" y1="300" x2="518" y2="366" stroke="#F6B40E" stroke-width="10"/> <line x1="450" y1="300" x2="489" y2="387" stroke="#F6B40E" stroke-width="10"/> <line x1="450" y1="300" x2="453" y2="395" stroke="#F6B40E" stroke-width="10"/> <line x1="450" y1="300" x2="418" y2="389" stroke="#F6B40E" stroke-width="10"/> <line x1="450" y1="300" x2="386" y2="371" stroke="#F6B40E" stroke-width="10"/> <line x1="450" y1="300" x2="365" y2="342" stroke="#F6B40E" stroke-width="10"/> <line x1="450" y1="300" x2="355" y2="307" stroke="#F6B40E" stroke-width="10"/> <line x1="450" y1="300" x2="360" y2="271" stroke="#F6B40E" stroke-width="10"/> <line x1="450" y1="300" x2="377" y2="239" stroke="#F6B40E" stroke-width="10"/> <line x1="450" y1="300" x2="405" y2="216" stroke="#F6B40E" stroke-width="10"/> <line x1="450" y1="300" x2="440" y2="206" stroke="#F6B40E" stroke-width="10"/> <line x1="450" y1="300" x2="476" y2="209" stroke="#F6B40E" stroke-width="10"/> <line x1="450" y1="300" x2="508" y2="225" stroke="#F6B40E" stroke-width="10"/> <line x1="450" y1="300" x2="532" y2="252" stroke="#F6B40E" stroke-width="10"/> <line x1="450" y1="300" x2="544" y2="287" stroke="#F6B40E" stroke-width="10"/>
+<circle cx="450" cy="300" r="51" fill="#F6B40E" stroke="#85340A" stroke-width="3"/>
+<circle cx="426" cy="287" r="9" fill="#85340A"/>
+<circle cx="474" cy="287" r="9" fill="#85340A"/>
+<path d="M436,316 Q450,333 464,316" fill="none" stroke="#85340A" stroke-width="5" stroke-linecap="round"/>
+
+</svg>
