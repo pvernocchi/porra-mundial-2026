@@ -5,6 +5,7 @@ namespace App\Models;
 
 use App\Core\Database;
 use App\Core\Password;
+use PDOException;
 
 /**
  * User row + small repository.
@@ -45,20 +46,29 @@ final class User
     {
         $row = $this->db->fetch(
             'SELECT * FROM {prefix:users} WHERE email = :e AND status != :s LIMIT 1',
-            ['e' => strtolower($email), 's' => 'deleted']
+            ['e' => $this->normalizeEmail($email), 's' => 'deleted']
         );
         return $row ? $this->hydrate($row) : null;
     }
 
-    public function emailExists(string $email, ?int $excludeId = null): bool
+    public function emailExists(string $email, ?int $excludeId = null, bool $includeDeleted = false): bool
     {
-        $sql = 'SELECT id FROM {prefix:users} WHERE email = :e AND status != :s';
-        $params = ['e' => strtolower($email), 's' => 'deleted'];
+        $sql = 'SELECT id FROM {prefix:users} WHERE email = :e';
+        $params = ['e' => $this->normalizeEmail($email)];
+        if (!$includeDeleted) {
+            $sql .= ' AND status != :s';
+            $params['s'] = 'deleted';
+        }
         if ($excludeId !== null) {
             $sql .= ' AND id <> :id';
             $params['id'] = $excludeId;
         }
         return $this->db->fetch($sql . ' LIMIT 1', $params) !== null;
+    }
+
+    public function emailExistsIncludingDeleted(string $email, ?int $excludeId = null): bool
+    {
+        return $this->emailExists($email, $excludeId, true);
     }
 
     /**
@@ -105,7 +115,7 @@ final class User
         $now = gmdate('Y-m-d H:i:s');
         $data = [
             'full_name'     => $fullName,
-            'email'         => strtolower($email),
+            'email'         => $this->normalizeEmail($email),
             'password_hash' => Password::hash($plainPassword),
             'role'          => in_array($role, ['admin', 'account_manager'], true) ? $role : 'user',
             'status'        => 'active',
@@ -114,7 +124,14 @@ final class User
             'updated_at'    => $now,
         ];
         $data['team_name'] = $teamName !== '' ? $teamName : null;
-        return (int)$this->db->insert('users', $data);
+        try {
+            return (int)$this->db->insert('users', $data);
+        } catch (PDOException $e) {
+            if ($this->isDuplicateEmailError($e)) {
+                throw new DuplicateUserEmail('A user with this email already exists.', 0, $e);
+            }
+            throw $e;
+        }
     }
 
     public function updateProfile(int $id, string $fullName, string $role, string $status, string $teamName = ''): void
@@ -181,5 +198,31 @@ final class User
         $u->lastLoginAt = $row['last_login_at'] ?? null;
         $u->deletedAt = $row['deleted_at'] ?? null;
         return $u;
+    }
+
+    /**
+     * Normalize email addresses for case-insensitive comparison.
+     */
+    private function normalizeEmail(string $email): string
+    {
+        return strtolower(trim($email));
+    }
+
+    /**
+     * Detect database-level duplicate email violations for supported drivers.
+     */
+    private function isDuplicateEmailError(PDOException $e): bool
+    {
+        $errorInfo = is_array($e->errorInfo) ? $e->errorInfo : [];
+        $sqlState = (string)($errorInfo[0] ?? '');
+        $driverCode = (string)($errorInfo[1] ?? '');
+
+        return $sqlState === '23000'
+            && (
+                // 1062 is MySQL/MariaDB duplicate key. SQLite reports 19 for general
+                // constraint failures; users.email is the only constraint this insert can hit.
+                $driverCode === '1062'
+                || $driverCode === '19'
+            );
     }
 }

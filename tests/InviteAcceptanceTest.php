@@ -7,8 +7,12 @@ namespace Tests;
 use App\Core\Application;
 use App\Core\Database;
 use App\Core\Installer;
+use App\Core\Request;
+use App\Core\Response;
+use App\Models\DuplicateUserEmail;
 use App\Models\Invitation;
 use App\Models\User;
+use App\Modules\Auth\InviteController;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -110,6 +114,74 @@ final class InviteAcceptanceTest extends TestCase
         $this->assertSame('', $user->teamName);
     }
 
+    public function testDeletedUserEmailStillBlocksInvitationAcceptance(): void
+    {
+        $userModel = new User($this->db);
+        $userId = $userModel->create(
+            'Deleted User',
+            'deleted@example.com',
+            'SecurePass3!',
+            'user'
+        );
+        $userModel->softDelete($userId);
+
+        $this->assertFalse($userModel->emailExists('deleted@example.com'));
+        $this->assertTrue($userModel->emailExistsIncludingDeleted('deleted@example.com'));
+    }
+
+    public function testInvitationAcceptanceShowsValidationErrorForDeletedUserEmail(): void
+    {
+        $userModel = new User($this->db);
+        $userId = $userModel->create(
+            'Deleted User',
+            'deleted-invite@example.com',
+            'SecurePass6!',
+            'user'
+        );
+        $userModel->softDelete($userId);
+
+        $invModel = new Invitation($this->db);
+        $inv = $invModel->create('Invited User', 'deleted-invite@example.com', 'user', 0);
+        $app = $this->applicationWithDatabase();
+        $csrf = $app->csrf()->token();
+        $req = new Request(post: [
+            '_token' => $csrf,
+            'full_name' => 'Invited User',
+            'team_name' => '',
+            'password' => 'SecurePass7!',
+            'password_confirm' => 'SecurePass7!',
+        ]);
+
+        $response = (new InviteController($app))->submit($req, ['token' => $inv['token']]);
+
+        $this->assertSame(400, $this->responseStatus($response));
+        $this->assertStringContainsString(
+            'Ya existe una cuenta con ese email. Pide al administrador que revise esa cuenta antes de reenviar la invitación.',
+            $this->responseBody($response)
+        );
+        $this->assertNotNull($invModel->findValidByToken($inv['token']));
+    }
+
+    public function testDuplicateEmailCreateThrowsDomainException(): void
+    {
+        $userModel = new User($this->db);
+        $userModel->create(
+            'Existing User',
+            'existing@example.com',
+            'SecurePass4!',
+            'user'
+        );
+
+        $this->expectException(DuplicateUserEmail::class);
+
+        $userModel->create(
+            'Duplicate User',
+            'existing@example.com',
+            'SecurePass5!',
+            'user'
+        );
+    }
+
     public function testMigrationCanRunTwice(): void
     {
         // Running migrations again should not throw (idempotent).
@@ -121,5 +193,28 @@ final class InviteAcceptanceTest extends TestCase
         // This should not throw even though tables and columns already exist
         $count = $inst->runMigrations($cfg);
         $this->assertGreaterThanOrEqual(1, $count);
+    }
+
+    private function applicationWithDatabase(): Application
+    {
+        $app = new Application(dirname(__DIR__));
+        $prop = new \ReflectionProperty(Application::class, 'db');
+        $prop->setAccessible(true);
+        $prop->setValue($app, $this->db);
+        return $app;
+    }
+
+    private function responseStatus(Response $response): int
+    {
+        $prop = new \ReflectionProperty(Response::class, 'status');
+        $prop->setAccessible(true);
+        return (int)$prop->getValue($response);
+    }
+
+    private function responseBody(Response $response): string
+    {
+        $prop = new \ReflectionProperty(Response::class, 'body');
+        $prop->setAccessible(true);
+        return (string)$prop->getValue($response);
     }
 }

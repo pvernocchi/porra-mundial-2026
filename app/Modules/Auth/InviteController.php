@@ -7,6 +7,7 @@ use App\Core\Application;
 use App\Core\Password;
 use App\Core\Request;
 use App\Core\Response;
+use App\Models\DuplicateUserEmail;
 use App\Models\Invitation;
 use App\Models\User;
 
@@ -63,8 +64,8 @@ final class InviteController
         $errors = array_merge($errors, Password::validate($pass, $this->app->path('data/common-passwords.txt')));
 
         $userModel = new User($this->app->db());
-        if ($userModel->emailExists((string)$inv['email'])) {
-            $errors[] = 'Ya existe una cuenta con ese email. Pide al administrador que reenvíe la invitación.';
+        if ($userModel->emailExistsIncludingDeleted((string)$inv['email'])) {
+            $errors[] = $this->duplicateEmailMessage();
         }
 
         if ($errors !== []) {
@@ -74,7 +75,14 @@ final class InviteController
             );
         }
 
-        $userId = $userModel->create($fullName, (string)$inv['email'], $pass, (string)$inv['role'], $teamName);
+        try {
+            $userId = $userModel->create($fullName, (string)$inv['email'], $pass, (string)$inv['role'], $teamName);
+        } catch (DuplicateUserEmail) {
+            return (new Response())->html(
+                $this->layout('Invitación', $this->formView($inv, [$this->duplicateEmailMessage()], $token, $fullName, $teamName)),
+                400
+            );
+        }
         $invModel->markUsed((int)$inv['id']);
         $this->app->audit()->log('invite.accepted', $userId, ['email' => $inv['email']]);
 
@@ -138,5 +146,13 @@ HTML;
     {
         return '<div class="alert alert-danger">El enlace de invitación no es válido o ha caducado.</div>'
             . '<p>Pide al administrador que te reenvíe una nueva invitación.</p>';
+    }
+
+    /**
+     * Spanish user-facing error shown when an invite email already belongs to a user.
+     */
+    private function duplicateEmailMessage(): string
+    {
+        return 'Ya existe una cuenta con ese email. Pide al administrador que revise esa cuenta antes de reenviar la invitación.';
     }
 }
