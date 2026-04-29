@@ -162,8 +162,10 @@ final class Installer
                 // don't fail on pre-existing objects or seed data.
                 $code = (string)$e->getCode();
                 if ($code === '42S01'
+                    || $code === '42S21'
                     || $code === '23000'
                     || stripos($e->getMessage(), 'already exists') !== false
+                    || stripos($e->getMessage(), 'Duplicate column name') !== false
                     || stripos($e->getMessage(), 'UNIQUE constraint failed') !== false
                     || stripos($e->getMessage(), 'Duplicate entry') !== false
                 ) {
