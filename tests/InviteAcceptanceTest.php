@@ -155,7 +155,10 @@ final class InviteAcceptanceTest extends TestCase
         $response = (new InviteController($app))->submit($req, ['token' => $inv['token']]);
 
         $this->assertSame(400, $this->responseStatus($response));
-        $this->assertStringContainsString('Ya existe una cuenta con ese email', $this->responseBody($response));
+        $this->assertStringContainsString(
+            'Ya existe una cuenta con ese email. Pide al administrador que revise esa cuenta antes de reenviar la invitación.',
+            $this->responseBody($response)
+        );
         $this->assertNotNull($invModel->findValidByToken($inv['token']));
     }
 

@@ -219,7 +219,8 @@ final class User
 
         return $sqlState === '23000'
             && (
-                // 1062 is MySQL/MariaDB duplicate key; 19 is SQLite's general constraint code.
+                // 1062 is MySQL/MariaDB duplicate key. SQLite reports 19 for general
+                // constraint failures; users.email is the only constraint this insert can hit.
                 $driverCode === '1062'
                 || $driverCode === '19'
             );
