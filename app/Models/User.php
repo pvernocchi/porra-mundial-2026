@@ -101,11 +101,12 @@ final class User
         return [$list, $total];
     }
 
-    public function create(string $fullName, string $email, string $plainPassword, string $role = 'user'): int
+    public function create(string $fullName, string $email, string $plainPassword, string $role = 'user', string $teamName = ''): int
     {
         $now = gmdate('Y-m-d H:i:s');
         return (int)$this->db->insert('users', [
             'full_name'     => $fullName,
+            'team_name'     => $teamName !== '' ? $teamName : null,
             'email'         => strtolower($email),
             'password_hash' => Password::hash($plainPassword),
             'role'          => in_array($role, ['admin', 'account_manager'], true) ? $role : 'user',
