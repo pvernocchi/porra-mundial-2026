@@ -63,6 +63,27 @@ final class MfaController
 
     /* --------- dashboard --------- */
 
+    public function skipEnrollment(Request $req): Response
+    {
+        if (!$this->app->csrf()->valid((string)$req->input('_token'))) {
+            return (new Response())->redirect($this->app->baseUrl() . '/account/mfa/enroll');
+        }
+        $uid = $this->app->auth()->pendingEnrollmentUserId();
+        if ($uid === null) {
+            // Already logged in or no pending enrollment – redirect to home.
+            return (new Response())->redirect($this->app->baseUrl() . '/home');
+        }
+        $user = (new \App\Models\User($this->app->db()))->find($uid);
+        if ($user === null) {
+            $this->app->auth()->clearPendingMfa();
+            return (new Response())->redirect($this->app->baseUrl() . '/login');
+        }
+        $this->app->auth()->finaliseLogin($user, mfaUsed: false);
+        $this->app->audit()->log('mfa.enrollment.skipped', $uid);
+        $target = $this->app->auth()->canManageUsers() ? '/admin' : '/home';
+        return (new Response())->redirect($this->app->baseUrl() . $target);
+    }
+
     public function dashboard(Request $req): Response
     {
         if ($r = $this->requireUser()) { return $r; }
