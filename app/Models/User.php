@@ -16,6 +16,9 @@ use App\Core\Password;
  */
 final class User
 {
+    /** @var array<string, bool> */
+    private static array $teamNameColumnCache = [];
+
     public int $id = 0;
     public string $fullName = '';
     public string $teamName = '';
@@ -28,8 +31,6 @@ final class User
     public ?string $updatedAt = null;
     public ?string $lastLoginAt = null;
     public ?string $deletedAt = null;
-    private ?bool $hasTeamNameColumn = null;
-
     public function __construct(private Database $db)
     {
     }
@@ -191,25 +192,28 @@ final class User
 
     private function hasTeamNameColumn(): bool
     {
-        if ($this->hasTeamNameColumn !== null) {
-            return $this->hasTeamNameColumn;
+        $table = $this->db->table('users');
+        $cacheKey = $this->db->driver() . ':' . spl_object_id($this->db->pdo()) . ':' . $table;
+        if (array_key_exists($cacheKey, self::$teamNameColumnCache)) {
+            return self::$teamNameColumnCache[$cacheKey];
         }
 
         if ($this->db->driver() === 'sqlite') {
-            $table = str_replace("'", "''", $this->db->table('users'));
-            $rows = $this->db->pdo()->query("PRAGMA table_info('{$table}')")->fetchAll();
+            $quotedTable = '"' . str_replace('"', '""', $table) . '"';
+            $stmt = $this->db->pdo()->query("PRAGMA table_info({$quotedTable})");
+            $rows = $stmt !== false ? $stmt->fetchAll() : [];
             foreach ($rows as $row) {
                 if (($row['name'] ?? '') === 'team_name') {
-                    return $this->hasTeamNameColumn = true;
+                    return self::$teamNameColumnCache[$cacheKey] = true;
                 }
             }
-            return $this->hasTeamNameColumn = false;
+            return self::$teamNameColumnCache[$cacheKey] = false;
         }
 
         $row = $this->db->fetch(
             'SELECT COUNT(*) AS c FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = :table AND COLUMN_NAME = :column',
-            ['table' => $this->db->table('users'), 'column' => 'team_name']
+            ['table' => $table, 'column' => 'team_name']
         );
-        return $this->hasTeamNameColumn = ((int)($row['c'] ?? 0) > 0);
+        return self::$teamNameColumnCache[$cacheKey] = ((int)($row['c'] ?? 0) > 0);
     }
 }
