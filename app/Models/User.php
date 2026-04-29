@@ -28,7 +28,6 @@ final class User
     public ?string $updatedAt = null;
     public ?string $lastLoginAt = null;
     public ?string $deletedAt = null;
-
     public function __construct(private Database $db)
     {
     }
@@ -104,9 +103,8 @@ final class User
     public function create(string $fullName, string $email, string $plainPassword, string $role = 'user', string $teamName = ''): int
     {
         $now = gmdate('Y-m-d H:i:s');
-        return (int)$this->db->insert('users', [
+        $data = [
             'full_name'     => $fullName,
-            'team_name'     => $teamName !== '' ? $teamName : null,
             'email'         => strtolower($email),
             'password_hash' => Password::hash($plainPassword),
             'role'          => in_array($role, ['admin', 'account_manager'], true) ? $role : 'user',
@@ -114,18 +112,37 @@ final class User
             'mfa_enforced'  => 0,
             'created_at'    => $now,
             'updated_at'    => $now,
-        ]);
+        ];
+        $data['team_name'] = $teamName !== '' ? $teamName : null;
+        try {
+            return (int)$this->db->insert('users', $data);
+        } catch (\PDOException $e) {
+            if (!$this->isMissingColumn($e, 'team_name')) {
+                throw $e;
+            }
+            unset($data['team_name']);
+            return (int)$this->db->insert('users', $data);
+        }
     }
 
     public function updateProfile(int $id, string $fullName, string $role, string $status, string $teamName = ''): void
     {
-        $this->db->update('users', [
+        $data = [
             'full_name'  => $fullName,
-            'team_name'  => $teamName !== '' ? $teamName : null,
             'role'       => in_array($role, ['admin', 'account_manager'], true) ? $role : 'user',
             'status'     => in_array($status, ['active', 'disabled'], true) ? $status : 'active',
             'updated_at' => gmdate('Y-m-d H:i:s'),
-        ], ['id' => $id]);
+        ];
+        $data['team_name'] = $teamName !== '' ? $teamName : null;
+        try {
+            $this->db->update('users', $data, ['id' => $id]);
+        } catch (\PDOException $e) {
+            if (!$this->isMissingColumn($e, 'team_name')) {
+                throw $e;
+            }
+            unset($data['team_name']);
+            $this->db->update('users', $data, ['id' => $id]);
+        }
     }
 
     public function setPassword(int $id, string $plain): void
@@ -180,5 +197,14 @@ final class User
         $u->lastLoginAt = $row['last_login_at'] ?? null;
         $u->deletedAt = $row['deleted_at'] ?? null;
         return $u;
+    }
+
+    private function isMissingColumn(\PDOException $e, string $column): bool
+    {
+        $message = $e->getMessage();
+        return str_contains($message, $column)
+            && (str_contains($message, 'Unknown column')
+                || str_contains($message, 'no column named')
+                || str_contains($message, 'no such column'));
     }
 }
