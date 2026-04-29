@@ -209,7 +209,7 @@ $picksProgress    = $picksCount > 0 ? (int)round($picksCount / 6 * 100) : 0;
   function tick() {
     var diff = target - Date.now();
     if (diff <= 0) {
-      el.innerHTML = '<p class="h-countdown-started">\uD83C\uDF89 \u00A1El Mundial ya est\u00E1 en marcha!</p>';
+      el.innerHTML = '<p class="h-countdown-started">🎉 ¡El Mundial ya está en marcha!</p>';
       return;
     }
     var d = Math.floor(diff / 86400000);

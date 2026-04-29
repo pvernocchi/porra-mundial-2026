@@ -24,6 +24,7 @@
   --accent-gold:   #d4a017;
   --accent-green:  #107c10;
   --accent-red:    #d13438;
+  --accent-blue-light: #40a9ff;
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; padding: 0; }
@@ -466,7 +467,7 @@ fieldset legend {
   margin-top: .6rem; overflow: hidden;
 }
 .h-picks-bar-fill {
-  height: 100%; background: linear-gradient(90deg, var(--accent-blue), #40a9ff);
+  height: 100%; background: linear-gradient(90deg, var(--accent-blue), var(--accent-blue-light));
   border-radius: 999px;
   animation: progressGrow .9s cubic-bezier(.22,1,.36,1) both;
 }
