@@ -92,7 +92,18 @@ final class InviteController
         if ($user !== null) {
             $this->app->auth()->finaliseLogin($user, mfaUsed: false);
         }
-        return (new Response())->redirect($this->app->baseUrl() . '/account');
+
+        // When the MFA policy requires enrollment (all users, or admins
+        // for admin/account_manager roles), send the new user to the MFA
+        // setup page so they can configure it right away.  Otherwise
+        // (policy = optional) skip the MFA offer and go straight to /home.
+        $mfaPolicy = $this->app->auth()->mfaPolicy();
+        $role = (string)($inv['role'] ?? 'player');
+        $needsMfa = $mfaPolicy === 'all'
+            || ($mfaPolicy === 'admins' && in_array($role, ['admin', 'account_manager'], true));
+
+        $target = $needsMfa ? '/account' : '/home';
+        return (new Response())->redirect($this->app->baseUrl() . $target);
     }
 
     private function layout(string $title, string $body): string
