@@ -21,6 +21,11 @@ $base = $e($app->baseUrl());
     <p class="metric"><?= $e((string)count($pendingInvites)) ?></p>
     <a href="<?= $base ?>/admin/users#invitations">Ver →</a>
   </div>
+  <div class="card">
+    <h3>Reportes</h3>
+    <p>Resumen para difusión</p>
+    <a href="<?= $base ?>/admin/reports">Ver →</a>
+  </div>
   <?php if ($app->auth()->isAdmin()): ?>
   <div class="card">
     <h3>SMTP</h3>

@@ -7,6 +7,7 @@ use App\Core\Response;
 use App\Core\Router;
 use App\Modules\Admin\AdminController;
 use App\Modules\Admin\CommunicationController;
+use App\Modules\Admin\ReportController;
 use App\Modules\Admin\SecurityController;
 use App\Modules\Admin\UserController;
 use App\Modules\Auth\AuthController;
@@ -124,6 +125,10 @@ return static function (Application $app): Router {
 
     $router->get('/admin/security',  fn(Request $r) => (new SecurityController($app))->index($r), [$auth, $admin]);
     $router->post('/admin/security', fn(Request $r) => (new SecurityController($app))->save($r),  [$auth, $admin]);
+
+    /* ---------- Admin: Broadcast reports (admin + account_manager) ---------- */
+    $router->get('/admin/reports',           fn(Request $r) => (new ReportController($app))->index($r),    [$auth, $userManager]);
+    $router->post('/admin/reports/snapshot', fn(Request $r) => (new ReportController($app))->snapshot($r), [$auth, $userManager]);
 
     /* ---------- Admin: Game management (admin + account_manager) ---------- */
     $router->get('/admin/game/matches',                                      fn(Request $r) => (new AdminGameController($app))->matches($r),                  [$auth, $userManager]);
