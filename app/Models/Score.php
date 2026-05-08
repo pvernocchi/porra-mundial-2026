@@ -76,6 +76,88 @@ final class Score
     }
 
     /**
+     * Detailed per-match point breakdown for a single team.
+     * @param array<int, GameMatch> $matches  played matches involving this team
+     * @return array<int, array{match_id: int, points: float, details: array<int, array{label: string, value: float}>}>
+     */
+    public function teamMatchPointsBreakdown(int $teamId, array $matches): array
+    {
+        $breakdown = [];
+        foreach ($matches as $m) {
+            if (!$m->played || $m->homeGoals === null || $m->awayGoals === null) {
+                continue;
+            }
+            $isHome = ($m->homeTeamId === $teamId);
+            $goalsFor     = $isHome ? $m->homeGoals : $m->awayGoals;
+            $goalsAgainst = $isHome ? $m->awayGoals : $m->homeGoals;
+            $yellows       = $isHome ? $m->homeYellows : $m->awayYellows;
+            $doubleYellows = $isHome ? $m->homeDoubleYellows : $m->awayDoubleYellows;
+            $reds          = $isHome ? $m->homeReds : $m->awayReds;
+            $comeback      = $isHome ? $m->homeComeback : $m->awayComeback;
+
+            $details = [];
+            $matchPoints = 0.0;
+
+            // Result
+            if ($goalsFor > $goalsAgainst) {
+                $details[] = ['label' => 'Victoria', 'value' => 3.0];
+                $matchPoints += 3;
+            } elseif ($goalsFor === $goalsAgainst) {
+                $details[] = ['label' => 'Empate', 'value' => 1.0];
+                $matchPoints += 1;
+            }
+
+            // Bonus: 3+ goals scored
+            if ($goalsFor >= 3) {
+                $details[] = ['label' => '3+ goles', 'value' => 2.0];
+                $matchPoints += 2;
+            }
+
+            // Bonus: clean sheet
+            if ($goalsAgainst === 0) {
+                $details[] = ['label' => 'Portería a cero', 'value' => 1.0];
+                $matchPoints += 1;
+            }
+
+            // Bonus: comeback
+            if ($comeback) {
+                $details[] = ['label' => 'Remontada', 'value' => 1.0];
+                $matchPoints += 1;
+            }
+
+            // Penalties: cards
+            if ($yellows > 0) {
+                $val = -$yellows * 0.2;
+                $details[] = ['label' => 'Amarillas (×' . $yellows . ')', 'value' => $val];
+                $matchPoints += $val;
+            }
+            if ($doubleYellows > 0) {
+                $val = -$doubleYellows * 1.0;
+                $details[] = ['label' => 'Doble amarilla (×' . $doubleYellows . ')', 'value' => $val];
+                $matchPoints += $val;
+            }
+            if ($reds > 0) {
+                $val = -$reds * 2.0;
+                $details[] = ['label' => 'Roja (×' . $reds . ')', 'value' => $val];
+                $matchPoints += $val;
+            }
+
+            // Penalty: concede 3+
+            if ($goalsAgainst >= 3) {
+                $details[] = ['label' => 'Recibir 3+ goles', 'value' => -2.0];
+                $matchPoints -= 2;
+            }
+
+            $breakdown[$m->id] = [
+                'match_id' => $m->id,
+                'points'   => $matchPoints,
+                'details'  => $details,
+            ];
+        }
+        return $breakdown;
+    }
+
+    /**
      * Points from tournament achievements.
      */
     public function teamProgressPoints(int $teamId): float
