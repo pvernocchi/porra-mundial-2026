@@ -79,8 +79,9 @@ final class User
         $where = ['status != :ds'];
         $params = ['ds' => 'deleted'];
         if ($search !== '') {
-            $where[] = '(full_name LIKE :s OR email LIKE :s)';
-            $params['s'] = '%' . $search . '%';
+            $where[] = '(full_name LIKE :s1 OR email LIKE :s2)';
+            $params['s1'] = '%' . $search . '%';
+            $params['s2'] = '%' . $search . '%';
         }
         if ($role !== null && $role !== '') {
             $where[] = 'role = :r';
