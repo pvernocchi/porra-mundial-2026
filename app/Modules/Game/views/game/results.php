@@ -7,6 +7,13 @@
 
 use App\Core\Flags;
 
+/** Format a point value as a signed, colored span. */
+$fmtPts = function (float $v): string {
+    $cls = $v >= 0 ? 'pts-positive' : 'pts-negative';
+    $sign = $v >= 0 ? '+' : '';
+    return '<span class="' . $cls . '">' . $sign . number_format($v, 1) . '</span>';
+};
+
 $phaseLabels = [
     'group'       => 'Fase de grupos',
     'round_of_32' => 'Dieciseisavos',
@@ -40,7 +47,7 @@ $view->section('content');
         <div class="match-team">
           <?= Flags::img($m->homeTeamName, 28) ?>
           <span><?= $e($m->homeTeamName) ?></span>
-          <span class="match-team-pts <?= $homePoints >= 0 ? 'pts-positive' : 'pts-negative' ?>"><?= $homePoints >= 0 ? '+' : '' ?><?= number_format($homePoints, 1) ?></span>
+          <span class="match-team-pts"><?= $fmtPts($homePoints) ?></span>
         </div>
         <div>
           <div class="match-score"><?= $m->homeGoals ?? '—' ?> – <?= $m->awayGoals ?? '—' ?></div>
@@ -51,7 +58,7 @@ $view->section('content');
         <div class="match-team away">
           <?= Flags::img($m->awayTeamName, 28) ?>
           <span><?= $e($m->awayTeamName) ?></span>
-          <span class="match-team-pts <?= $awayPoints >= 0 ? 'pts-positive' : 'pts-negative' ?>"><?= $awayPoints >= 0 ? '+' : '' ?><?= number_format($awayPoints, 1) ?></span>
+          <span class="match-team-pts"><?= $fmtPts($awayPoints) ?></span>
         </div>
         <div class="match-expand-icon">▼</div>
       </div>
@@ -65,13 +72,13 @@ $view->section('content');
                 <?php foreach ($homeBreakdown['details'] as $d): ?>
                   <li>
                     <span><?= $e($d['label']) ?></span>
-                    <span class="<?= $d['value'] >= 0 ? 'pts-positive' : 'pts-negative' ?>"><?= $d['value'] >= 0 ? '+' : '' ?><?= number_format($d['value'], 1) ?></span>
+                    <?= $fmtPts($d['value']) ?>
                   </li>
                 <?php endforeach ?>
               </ul>
               <div class="breakdown-total">
                 <span>Total</span>
-                <span class="<?= $homePoints >= 0 ? 'pts-positive' : 'pts-negative' ?>"><?= $homePoints >= 0 ? '+' : '' ?><?= number_format($homePoints, 1) ?></span>
+                <?= $fmtPts($homePoints) ?>
               </div>
             <?php else: ?>
               <p class="breakdown-empty">Sin desglose</p>
@@ -85,13 +92,13 @@ $view->section('content');
                 <?php foreach ($awayBreakdown['details'] as $d): ?>
                   <li>
                     <span><?= $e($d['label']) ?></span>
-                    <span class="<?= $d['value'] >= 0 ? 'pts-positive' : 'pts-negative' ?>"><?= $d['value'] >= 0 ? '+' : '' ?><?= number_format($d['value'], 1) ?></span>
+                    <?= $fmtPts($d['value']) ?>
                   </li>
                 <?php endforeach ?>
               </ul>
               <div class="breakdown-total">
                 <span>Total</span>
-                <span class="<?= $awayPoints >= 0 ? 'pts-positive' : 'pts-negative' ?>"><?= $awayPoints >= 0 ? '+' : '' ?><?= number_format($awayPoints, 1) ?></span>
+                <?= $fmtPts($awayPoints) ?>
               </div>
             <?php else: ?>
               <p class="breakdown-empty">Sin desglose</p>

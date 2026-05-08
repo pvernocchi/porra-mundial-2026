@@ -187,7 +187,7 @@ final class GameController
 
         // Compute per-match breakdown for every team that appears
         $teamBreakdowns = [];
-        $teamIds = array_unique(array_keys($matchesByTeam));
+        $teamIds = array_keys($matchesByTeam);
         foreach ($teamIds as $tid) {
             $teamBreakdowns[$tid] = $scoreModel->teamMatchPointsBreakdown($tid, $matchesByTeam[$tid]);
         }
