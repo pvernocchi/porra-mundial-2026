@@ -6,7 +6,7 @@
 
 [![PHP](https://img.shields.io/badge/PHP-8.1+-777BB4?style=for-the-badge&logo=php&logoColor=white)](https://php.net)
 [![MySQL](https://img.shields.io/badge/MySQL-5.7+-4479A1?style=for-the-badge&logo=mysql&logoColor=white)](https://www.mysql.com)
-[![Version](https://img.shields.io/badge/Versión-0.5.7-blue?style=for-the-badge)]()
+[![Version](https://img.shields.io/badge/Versión-0.6.0-blue?style=for-the-badge)]()
 
 ---
 
