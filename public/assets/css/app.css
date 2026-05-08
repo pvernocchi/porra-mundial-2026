@@ -256,6 +256,30 @@ fieldset legend {
 .match-team.away { flex-direction: row-reverse; text-align: right; }
 .match-score { font-size: 1.3rem; font-weight: 700; letter-spacing: .1rem; min-width: 60px; text-align: center; }
 .match-meta { text-align: center; font-size: .8rem; color: var(--muted); min-width: 120px; }
+.match-card-wrapper { margin-bottom: .5rem; }
+.match-card-wrapper .match-card { margin-bottom: 0; }
+.match-card-collapsible { cursor: pointer; position: relative; }
+.match-card-collapsible:focus { outline: 2px solid var(--primary, #3b82f6); outline-offset: 2px; }
+.match-team-pts { font-size: .82rem; font-weight: 600; margin-left: .25rem; white-space: nowrap; }
+.match-team.away .match-team-pts { margin-left: 0; margin-right: .25rem; }
+.match-expand-icon {
+  font-size: .7rem; color: var(--muted); transition: transform .2s;
+  position: absolute; right: .5rem; bottom: .35rem;
+}
+.match-card-collapsible[aria-expanded="true"] .match-expand-icon { transform: rotate(180deg); }
+.match-card-collapsible[aria-expanded="true"] { border-radius: 10px 10px 0 0; }
+.match-breakdown {
+  background: var(--surface); border: 1px solid var(--border); border-top: none;
+  border-radius: 0 0 10px 10px; padding: 1rem 1.25rem;
+}
+.match-breakdown-columns { display: flex; gap: 2rem; }
+.match-breakdown-col { flex: 1; min-width: 0; }
+.match-breakdown-col h4 { margin: 0 0 .5rem; font-size: .9rem; display: flex; align-items: center; gap: .35rem; }
+.breakdown-list { list-style: none; margin: 0; padding: 0; font-size: .85rem; }
+.breakdown-list li { display: flex; justify-content: space-between; padding: .2rem 0; border-bottom: 1px solid var(--border); }
+.breakdown-list li:last-child { border-bottom: none; }
+.breakdown-total { display: flex; justify-content: space-between; font-weight: 700; font-size: .9rem; padding-top: .4rem; border-top: 2px solid var(--border); margin-top: .3rem; }
+.breakdown-empty { font-size: .85rem; color: var(--muted); margin: 0; }
 
 /* Phase badge */
 .phase-badge {
@@ -666,6 +690,7 @@ fieldset legend {
   .pick-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
   .match-card { flex-wrap: wrap; gap: .5rem; }
   .match-team { min-width: 100px; }
+  .match-breakdown-columns { flex-direction: column; gap: 1rem; }
   .podium { flex-direction: column; align-items: center; gap: 1rem; }
   .podium-item { flex-direction: row; width: 100%; max-width: 350px; justify-content: space-between; }
   .podium-medal { font-size: 2rem; margin: 0; }

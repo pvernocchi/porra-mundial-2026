@@ -170,15 +170,31 @@ final class GameController
     }
 
     /**
-     * Results page: list of played matches.
+     * Results page: list of played matches with per-team score breakdown.
      */
     public function results(Request $req): Response
     {
         $matchModel = new GameMatch($this->app->db());
+        $scoreModel = new Score($this->app->db());
         $matches = $matchModel->played();
 
+        // Index matches by team
+        $matchesByTeam = [];
+        foreach ($matches as $m) {
+            $matchesByTeam[$m->homeTeamId][] = $m;
+            $matchesByTeam[$m->awayTeamId][] = $m;
+        }
+
+        // Compute per-match breakdown for every team that appears
+        $teamBreakdowns = [];
+        $teamIds = array_keys($matchesByTeam);
+        foreach ($teamIds as $tid) {
+            $teamBreakdowns[$tid] = $scoreModel->teamMatchPointsBreakdown($tid, $matchesByTeam[$tid]);
+        }
+
         return (new Response())->html($this->app->view()->render('game.results', [
-            'matches' => $matches,
+            'matches'        => $matches,
+            'teamBreakdowns' => $teamBreakdowns,
         ]));
     }
 }
