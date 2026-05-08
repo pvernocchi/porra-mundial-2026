@@ -156,11 +156,16 @@ final class GameController
      */
     public function leaderboard(Request $req): Response
     {
-        $scoreModel = new Score($this->app->db());
-        $board = $scoreModel->leaderboard();
+        $picksLocked = $this->app->settings()->get('game.picks_locked', '0') === '1';
+        $board = [];
+        if ($picksLocked) {
+            $scoreModel = new Score($this->app->db());
+            $board = $scoreModel->leaderboard();
+        }
 
         return (new Response())->html($this->app->view()->render('game.leaderboard', [
-            'board' => $board,
+            'board'       => $board,
+            'picksLocked' => $picksLocked,
         ]));
     }
 
