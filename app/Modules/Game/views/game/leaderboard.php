@@ -3,6 +3,7 @@
 /** @var \App\Core\Application $app */
 /** @var callable $e */
 /** @var array<int, array{user_id: int, full_name: string, display_name: string, total: float, teams: array}> $board */
+/** @var bool $picksLocked */
 
 use App\Core\Flags;
 
@@ -22,10 +23,16 @@ $view->section('content');
     </svg>
     Clasificación General
   </h1>
-  <p>Puntuación en vivo de todos los participantes · <?= count($board) ?> jugadores</p>
+  <?php if ($picksLocked): ?>
+    <p>Puntuación en vivo de todos los participantes · <?= count($board) ?> jugadores</p>
+  <?php endif ?>
 </div>
 
-<?php if ($board === []): ?>
+<?php if (!$picksLocked): ?>
+  <div class="alert alert-info">
+    La clasificación estará disponible una vez finalizado el período de elección de selecciones nacionales.
+  </div>
+<?php elseif ($board === []): ?>
   <div class="alert alert-info">
     <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:1.1em;height:1.1em;vertical-align:-.15em">
       <circle cx="12" cy="12" r="10"/><path d="M12 16v-4"/><path d="M12 8h.01"/>
