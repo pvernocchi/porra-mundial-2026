@@ -84,8 +84,10 @@ table.table tr:last-child td { border-bottom: 0; }
 .pagination { display: flex; gap: .25rem; margin: 1rem 0; }
 .pagination a { padding: .35rem .7rem; border: 1px solid var(--border); border-radius: 4px; text-decoration: none; color: var(--text); }
 .pagination a.active { background: var(--primary); color: #fff; border-color: var(--primary); }
-.filters { display: flex; flex-wrap: wrap; gap: .5rem; align-items: center; margin-bottom: 1rem; }
-.filters input, .filters select { padding: .45rem .6rem; border: 1px solid var(--border); border-radius: 6px; }
+.filters { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; margin-bottom: 1.25rem; }
+.filters input, .filters select { padding: .5rem .75rem; border: 1px solid var(--border); border-radius: 6px; font-size: .95rem; }
+.filters input[type="text"] { min-width: 220px; }
+.filters .btn-primary { margin-left: auto; }
 .ok   { color: var(--success); font-weight: 600; }
 .fail { color: var(--danger);  font-weight: 600; }
 body.install { background: var(--bg); }

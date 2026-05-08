@@ -17,22 +17,43 @@ $view->section('content');
 $base = $e($app->baseUrl());
 $totalPages = max(1, (int)ceil($total / $perPage));
 ?>
-<form method="get" class="filters">
-  <input type="text"  name="q"      value="<?= $e($search) ?>" placeholder="Nombre o email">
-  <select name="role">
+<form method="get" class="filters" id="users-filter-form">
+  <input type="text" name="q" value="<?= $e($search) ?>" placeholder="Buscar por nombre o email…" id="users-search-input">
+  <select name="role" id="users-role-filter">
     <option value="">— Rol —</option>
     <option value="user"  <?= $role === 'user'  ? 'selected' : '' ?>>user</option>
     <option value="account_manager" <?= $role === 'account_manager' ? 'selected' : '' ?>>account_manager</option>
     <option value="admin" <?= $role === 'admin' ? 'selected' : '' ?>>admin</option>
   </select>
-  <select name="status">
+  <select name="status" id="users-status-filter">
     <option value="">— Estado —</option>
     <option value="active"   <?= $status === 'active'   ? 'selected' : '' ?>>activo</option>
     <option value="disabled" <?= $status === 'disabled' ? 'selected' : '' ?>>deshabilitado</option>
   </select>
-  <button class="btn btn-secondary" type="submit">Filtrar</button>
   <a class="btn btn-primary" href="<?= $base ?>/admin/users/invite">+ Invitar usuario</a>
 </form>
+<script>
+(function() {
+  const form = document.getElementById('users-filter-form');
+  const searchInput = document.getElementById('users-search-input');
+  const roleSelect = document.getElementById('users-role-filter');
+  const statusSelect = document.getElementById('users-status-filter');
+  let debounceTimer = null;
+
+  function submitForm() {
+    form.submit();
+  }
+
+  roleSelect.addEventListener('change', submitForm);
+  statusSelect.addEventListener('change', submitForm);
+
+  // Debounce 400ms to avoid excessive requests while still feeling responsive.
+  searchInput.addEventListener('input', function() {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(submitForm, 400);
+  });
+})();
+</script>
 
 <table class="table">
   <thead>
