@@ -92,6 +92,8 @@ return static function (Application $app): Router {
     }, [$auth]);
 
     $router->get('/account/mfa',                 fn(Request $r) => (new MfaController($app))->dashboard($r),       [$auth]);
+    $router->post('/account/team-name',          fn(Request $r) => (new MfaController($app))->updateTeamName($r),  [$auth]);
+    $router->post('/account/password',           fn(Request $r) => (new MfaController($app))->changeOwnPassword($r), [$auth]);
     $router->get('/account/mfa/enroll',          fn(Request $r) => (new MfaController($app))->dashboard($r));        // pending state
     $router->post('/account/mfa/enroll/skip',    fn(Request $r) => (new MfaController($app))->skipEnrollment($r));   // skip optional enrollment
     $router->get('/account/mfa/totp/new',        fn(Request $r) => (new MfaController($app))->totpNew($r));

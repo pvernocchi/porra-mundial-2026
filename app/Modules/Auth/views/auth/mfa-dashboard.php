@@ -92,6 +92,27 @@ $base = $e($app->baseUrl());
 </form>
 <?php endif ?>
 
+<?php if (!$pending): ?>
+<h2>Preferencias de cuenta</h2>
+<form method="post" action="<?= $base ?>/account/team-name" class="form-narrow">
+  <?= $app->csrf()->field() ?>
+  <label>Nombre del equipo
+    <input type="text" name="team_name" value="<?= $e((string)($app->auth()->user()?->teamName ?? '')) ?>" placeholder="Ej: Los Galácticos">
+  </label>
+  <button class="btn btn-primary" type="submit">Guardar nombre de equipo</button>
+</form>
+
+<h2>Cambiar contraseña</h2>
+<form method="post" action="<?= $base ?>/account/password" class="form-narrow">
+  <?= $app->csrf()->field() ?>
+  <label>Contraseña actual <input type="password" name="current_password" autocomplete="current-password" required></label>
+  <label>Nueva contraseña <input type="password" name="password" minlength="8" autocomplete="new-password" required></label>
+  <label>Confirmar nueva contraseña <input type="password" name="password_confirm" minlength="8" autocomplete="new-password" required></label>
+  <p class="muted"><small>Mínimo 8 caracteres y al menos 3 de: minúsculas, mayúsculas, dígitos, símbolos.</small></p>
+  <button class="btn btn-secondary" type="submit">Cambiar contraseña</button>
+</form>
+<?php endif ?>
+
 <?php if ($pending): ?>
 <hr>
 <p class="muted"><small>Puedes configurar MFA más tarde desde tu perfil de cuenta.</small></p>
