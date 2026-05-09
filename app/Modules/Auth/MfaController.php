@@ -5,11 +5,13 @@ namespace App\Modules\Auth;
 
 use App\Core\Application;
 use App\Core\Crypto;
+use App\Core\Password;
 use App\Core\Request;
 use App\Core\Response;
 use App\Core\Totp;
 use App\Models\MfaCredential;
 use App\Models\MfaRecoveryCode;
+use App\Models\User;
 
 /**
  * MFA enrollment + management for the logged-in user.
@@ -100,6 +102,65 @@ final class MfaController
             'msg'          => $msg,
             'pending'      => $this->app->auth()->user() === null, // mid-enrollment
         ]));
+    }
+
+    public function updateTeamName(Request $req): Response
+    {
+        $user = $this->app->auth()->user();
+        if ($user === null) {
+            return (new Response())->redirect($this->app->baseUrl() . '/login');
+        }
+        if (!$this->app->csrf()->valid((string)$req->input('_token'))) {
+            $this->app->session()->flash('mfa_msg', 'Token CSRF inválido.');
+            return (new Response())->redirect($this->app->baseUrl() . '/account/mfa');
+        }
+
+        $teamName = trim((string)$req->input('team_name', ''));
+        (new User($this->app->db()))->updateProfile(
+            $user->id,
+            $user->fullName,
+            $user->role,
+            $user->status,
+            $teamName
+        );
+
+        $this->app->audit()->log('user.team_name_updated', $user->id, ['has_team_name' => $teamName !== '']);
+        $this->app->session()->flash('mfa_msg', 'Nombre de equipo actualizado.');
+        return (new Response())->redirect($this->app->baseUrl() . '/account/mfa');
+    }
+
+    public function changeOwnPassword(Request $req): Response
+    {
+        $user = $this->app->auth()->user();
+        if ($user === null) {
+            return (new Response())->redirect($this->app->baseUrl() . '/login');
+        }
+        if (!$this->app->csrf()->valid((string)$req->input('_token'))) {
+            $this->app->session()->flash('mfa_msg', 'Token CSRF inválido.');
+            return (new Response())->redirect($this->app->baseUrl() . '/account/mfa');
+        }
+
+        $current = (string)$req->input('current_password', '');
+        $pw      = (string)$req->input('password', '');
+        $pw2     = (string)$req->input('password_confirm', '');
+
+        $errors = [];
+        if (!Password::verify($current, $user->passwordHash)) {
+            $errors[] = 'La contraseña actual no es correcta.';
+        }
+        if ($pw !== $pw2) {
+            $errors[] = 'Las contraseñas no coinciden.';
+        }
+        $errors = array_merge($errors, Password::validate($pw, $this->app->path('data/common-passwords.txt')));
+        if ($errors !== []) {
+            $this->app->session()->flash('mfa_msg', implode(' ', $errors));
+            return (new Response())->redirect($this->app->baseUrl() . '/account/mfa');
+        }
+
+        (new User($this->app->db()))->setPassword($user->id, $pw);
+        $this->app->audit()->log('user.password_changed_by_self', $user->id);
+        $this->app->session()->flash('mfa_msg', 'Contraseña actualizada.');
+        return (new Response())->redirect($this->app->baseUrl() . '/account/mfa');
     }
 
     public function totpNew(Request $req): Response
