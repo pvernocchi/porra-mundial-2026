@@ -28,6 +28,7 @@
 - [🏗️ Arquitectura](#️-arquitectura)
 - [⚙️ Requisitos](#️-requisitos)
 - [🚀 Instalación y despliegue](#-instalación-y-despliegue)
+- [🌐 GitHub Pages](#-github-pages)
 - [📄 Documentación](#-documentación)
 - [📝 Licencia](#-licencia)
 
@@ -238,6 +239,22 @@ Sube la nueva release por FTP — las migraciones pendientes se detectan y aplic
 
 - 🌐 **Navegador** → redirige a `/install/upgrade`
 - 💻 **CLI** → `php bin/upgrade.php`
+
+---
+
+## 🌐 GitHub Pages
+
+Este repo incluye una landing visual estática para GitHub Pages en:
+
+- `docs/pages/index.html`
+
+Se publica automáticamente con el workflow:
+
+- `.github/workflows/deploy-pages.yml`
+
+La publicación está preparada para la URL con subruta del repositorio:
+
+- `https://pvernocchi.github.io/porra-mundial-2026/`
 
 ---
 
