@@ -1,0 +1,127 @@
+:root {
+  color-scheme: dark;
+  --bg: #0f172a;
+  --bg-soft: #111827;
+  --card: #1f2937;
+  --text: #e5e7eb;
+  --muted: #9ca3af;
+  --accent: #22c55e;
+  --accent-strong: #16a34a;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  color: var(--text);
+  background: radial-gradient(circle at top, #1d4ed8 0%, var(--bg) 45%);
+}
+
+.page {
+  max-width: 980px;
+  margin: 0 auto;
+  min-height: 100vh;
+  padding: 3rem 1.25rem 2rem;
+}
+
+.hero {
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+.badge {
+  display: inline-block;
+  margin: 0 0 1rem;
+  padding: .35rem .7rem;
+  border-radius: 999px;
+  background: rgba(34, 197, 94, 0.16);
+  color: #bbf7d0;
+  font-weight: 700;
+}
+
+h1 {
+  margin: 0;
+  font-size: clamp(2rem, 4vw, 3rem);
+}
+
+.subtitle {
+  margin: 1rem auto 0;
+  max-width: 680px;
+  color: var(--muted);
+  font-size: 1.1rem;
+  line-height: 1.55;
+}
+
+.actions {
+  margin-top: 1.4rem;
+  display: flex;
+  justify-content: center;
+  gap: .75rem;
+  flex-wrap: wrap;
+}
+
+.button {
+  border: 1px solid #374151;
+  color: var(--text);
+  text-decoration: none;
+  border-radius: .7rem;
+  padding: .7rem 1rem;
+  background: #111827;
+  transition: transform .15s ease, border-color .15s ease;
+}
+
+.button:hover {
+  transform: translateY(-1px);
+  border-color: #4b5563;
+}
+
+.button-primary {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #052e16;
+  font-weight: 700;
+}
+
+.button-primary:hover {
+  border-color: var(--accent-strong);
+  background: var(--accent-strong);
+}
+
+.grid {
+  margin-top: 1.6rem;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: .9rem;
+}
+
+.card {
+  background: rgba(17, 24, 39, .85);
+  border: 1px solid #374151;
+  border-radius: .9rem;
+  padding: 1rem;
+}
+
+.card h2 {
+  margin: 0 0 .6rem;
+  font-size: 1.05rem;
+}
+
+.card p {
+  margin: 0;
+  color: #d1d5db;
+  line-height: 1.5;
+}
+
+code {
+  color: #86efac;
+}
+
+.footer {
+  margin-top: 2rem;
+  text-align: center;
+  color: var(--muted);
+  font-size: .92rem;
+}
